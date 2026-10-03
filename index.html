@@ -560,7 +560,6 @@
     <div id="toast">Operación guardada exitosamente</div>
 
     <script>
-        // Database state stored in localStorage
         let db = JSON.parse(localStorage.getItem('icarlab_erp_db')) || {
             quotes: [
                 { id: '1', num: 'ICAR-302', recNum: 'REC-01', date: '2026-10-01', client: 'Flensa QRO', car: 'Chevrolet Silverado 2024', amount: 16500, advance: 5000, advDate: '2026-10-01', status: 'En Proceso' }
@@ -577,118 +576,101 @@
             payroll: [
                 { id: '1', employeeId: '1', period: 'Quincena 1 Octubre', base: 6200, advance: 500, status: 'Pagado' }
             ],
-            cashflow: [
-                { id: '1', date: '2026-10-01', type: 'Entrada', concept: 'Anticipo Flensa QRO', cat: 'Cobro Cliente / Anticipo', amount: 5000 },
-                { id: '2', date: '2026-10-01', type: 'Salida', concept: 'FAC-9921 Chemical Guys', cat: 'Pago Proveedor', amount: 2400 }
+            cash: [
+                { id: '1', date: '2026-10-01', type: 'Entrada', concept: 'Anticipo Flensa QRO', cat: 'Cobro Cliente / Anticipo', amount: 5000 }
             ]
         };
 
-        function saveDB() {
+        function saveData() {
             localStorage.setItem('icarlab_erp_db', JSON.stringify(db));
             showToast();
-            renderAll();
+            refreshAll();
         }
 
         function showToast() {
             const t = document.getElementById('toast');
             t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2500);
+            setTimeout(() => { t.style.display = 'none'; }, 2000);
         }
 
-        // Navigation
         function switchView(viewName) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + viewName).classList.add('active');
             document.getElementById('nav-' + viewName).classList.add('active');
-            renderAll();
+            refreshAll();
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal-bg').forEach(m => m.style.display = 'none');
         }
 
         let dashChartInstance = null;
 
-        function renderAll() {
+        function refreshAll() {
             renderDashboard();
-            renderQuotations();
+            renderQuotes();
             renderSuppliers();
             renderInventory();
             renderPayroll();
             renderEmployees();
-            renderCashflow();
+            renderCash();
             renderReports();
-            populateEmployeeDropdown();
         }
 
-        // 1. DASHBOARD
+        // --- DASHBOARD ---
         function renderDashboard() {
-            const period = document.getElementById('dash-period').value;
-            let totalIncome = db.quotes.reduce((acc, q) => acc + Number(q.advance), 0) + db.cashflow.filter(c => c.type === 'Entrada').reduce((acc, c) => acc + Number(c.amount), 0);
-            let totalExpenses = db.suppliers.reduce((acc, s) => acc + Number(s.paid), 0) + db.payroll.reduce((acc, p) => acc + (Number(p.base) - Number(p.advance)), 0) + db.cashflow.filter(c => c.type === 'Salida').reduce((acc, c) => acc + Number(c.amount), 0);
+            let totalIncome = db.quotes.reduce((acc, q) => acc + Number(q.advance || 0), 0);
+            let totalSupExpenses = db.suppliers.reduce((acc, s) => acc + Number(s.paid || 0), 0);
+            let totalPayExpenses = db.payroll.reduce((acc, p) => acc + (p.status === 'Pagado' ? Number(p.base - p.advance) : 0), 0);
+            let totalExpenses = totalSupExpenses + totalPayExpenses;
             let profit = totalIncome - totalExpenses;
 
-            document.getElementById('d-income').innerText = '$' + totalIncome.toLocaleString('es-MX', {minimumFractionDigits:2});
-            document.getElementById('d-expenses').innerText = '$' + totalExpenses.toLocaleString('es-MX', {minimumFractionDigits:2});
-            document.getElementById('d-profit').innerText = '$' + profit.toLocaleString('es-MX', {minimumFractionDigits:2});
+            document.getElementById('d-income').innerText = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('d-expenses').innerText = `$${totalExpenses.toFixed(2)}`;
+            
+            const profitEl = document.getElementById('d-profit');
+            profitEl.innerText = `$${profit.toFixed(2)}`;
+            profitEl.style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+
             document.getElementById('d-units').innerText = db.quotes.filter(q => q.status === 'En Proceso').length;
 
             // Stock alerts
             let alertsHtml = '';
-            let lowStock = db.inventory.filter(i => i.stock <= i.min);
-            if(lowStock.length === 0) {
-                alertsHtml = '<div style="color:var(--success);">✓ Todos los niveles de stock estables.</div>';
+            let lowStockItems = db.inventory.filter(i => Number(i.stock) <= Number(i.min));
+            if (lowStockItems.length === 0) {
+                alertsHtml = '<div style="color:var(--text-muted);">Sin alertas críticas. Todo en orden.</div>';
             } else {
-                lowStock.forEach(i => {
-                    alertsHtml += `<div style="color:var(--danger); margin-bottom:5px;">⚠️ ${i.desc} (Stock: ${i.stock}, Mín: ${i.min})</div>`;
+                lowStockItems.forEach(i => {
+                    alertsHtml += `<div style="padding:6px 0; border-bottom:1px solid var(--border-color); color:var(--warning);">⚠️ <b>${i.desc}</b> (Stock: ${i.stock}, Mín: ${i.min})</div>`;
                 });
             }
             document.getElementById('stock-alerts-list').innerHTML = alertsHtml;
 
             // Chart
             const ctx = document.getElementById('dashChart').getContext('2d');
-            if(dashChartInstance) dashChartInstance.destroy();
+            if (dashChartInstance) dashChartInstance.destroy();
             dashChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Ingresos Totales', 'Egresos Totales', 'Utilidad Neta'],
+                    labels: ['Ingresos', 'Egresos Proveedores', 'Nómina Pagada'],
                     datasets: [{
-                        data: [totalIncome, totalExpenses, profit],
-                        backgroundColor: ['#10b981', '#ef4444', '#f97316'],
+                        label: 'Monto ($)',
+                        data: [totalIncome, totalSupExpenses, totalPayExpenses],
+                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
                         borderRadius: 6
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                    }
+                    scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } }
                 }
             });
         }
 
-        // 2. QUOTATIONS
-        function renderQuotations() {
-            let html = '';
-            db.quotes.forEach(q => {
-                let balance = q.amount - q.advance;
-                html += `<tr>
-                    <td><b>${q.num}</b><br><span style="color:var(--text-muted); font-size:10px;">Recepción: ${q.recNum}</span></td>
-                    <td>${q.date}</td>
-                    <td>${q.client}</td>
-                    <td>${q.car}</td>
-                    <td>$${Number(q.amount).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                    <td>Anticipo: $${Number(q.advance).toLocaleString('es-MX', {minimumFractionDigits:2})} <br><span style="font-size:10px; color:var(--text-muted);">${q.advDate || ''}</span></td>
-                    <td style="color: ${balance > 0 ? 'var(--warning)' : 'var(--success)'};">$${balance.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                    <td><span class="badge ${q.status === 'En Proceso' ? 'badge-warning' : 'badge-success'}">${q.status}</span></td>
-                    <td class="no-print">
-                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editQuote('${q.id}')">Editar</button>
-                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteQuote('${q.id}')">Eliminar</button>
-                    </td>
-                </tr>`;
-            });
-            document.querySelector('#quotes-table tbody').innerHTML = html;
-        }
-
+        // --- QUOTATIONS ---
         function openQuoteModal() {
             document.getElementById('q-id').value = '';
             document.getElementById('q-num').value = 'ICAR-' + Math.floor(100 + Math.random() * 900);
@@ -702,86 +684,65 @@
             document.getElementById('modal-quote').style.display = 'flex';
         }
 
-        function editQuote(id) {
-            let q = db.quotes.find(x => x.id === id);
-            if(!q) return;
-            document.getElementById('q-id').value = q.id;
-            document.getElementById('q-num').value = q.num;
-            document.getElementById('q-rec-num').value = q.recNum;
-            document.getElementById('q-date').value = q.date;
-            document.getElementById('q-client').value = q.client;
-            document.getElementById('q-car').value = q.car;
-            document.getElementById('q-amount').value = q.amount;
-            document.getElementById('q-advance').value = q.advance;
-            document.getElementById('q-adv-date').value = q.advDate;
-            document.getElementById('q-status').value = q.status;
-            document.getElementById('modal-quote').style.display = 'flex';
-        }
-
         function saveQuote() {
-            let id = document.getElementById('q-id').value;
-            let data = {
-                id: id || Date.now().toString(),
-                num: document.getElementById('q-num').value,
-                recNum: document.getElementById('q-rec-num').value,
-                date: document.getElementById('q-date').value,
-                client: document.getElementById('q-client').value,
-                car: document.getElementById('q-car').value,
-                amount: parseFloat(document.getElementById('q-amount').value) || 0,
-                advance: parseFloat(document.getElementById('q-advance').value) || 0,
-                advDate: document.getElementById('q-adv-date').value,
-                status: document.getElementById('q-status').value
-            };
-            if(id) {
-                let idx = db.quotes.findIndex(x => x.id === id);
-                db.quotes[idx] = data;
+            const id = document.getElementById('q-id').value || Date.now().toString();
+            const num = document.getElementById('q-num').value;
+            const recNum = document.getElementById('q-rec-num').value;
+            const date = document.getElementById('q-date').value;
+            const client = document.getElementById('q-client').value;
+            const car = document.getElementById('q-car').value;
+            const amount = Number(document.getElementById('q-amount').value);
+            const advance = Number(document.getElementById('q-advance').value);
+            const advDate = document.getElementById('q-adv-date').value;
+            const status = document.getElementById('q-status').value;
+
+            if(!num || !client || !amount) { alert('Complete los campos obligatorios'); return; }
+
+            const index = db.quotes.findIndex(q => q.id === id);
+            if(index >= 0) {
+                db.quotes[index] = { id, num, recNum, date, client, car, amount, advance, advDate, status };
             } else {
-                db.quotes.push(data);
-                // Also log cash entry for advance if any
-                if(data.advance > 0) {
-                    db.cashflow.push({
-                        id: Date.now().toString(),
-                        date: data.advDate || data.date,
-                        type: 'Entrada',
-                        concept: 'Anticipo Cotización ' + data.num + ' (' + data.client + ')',
-                        cat: 'Cobro Cliente / Anticipo',
-                        amount: data.advance
-                    });
+                db.quotes.push({ id, num, recNum, date, client, car, amount, advance, advDate, status });
+                if(advance > 0) {
+                    db.cash.push({ id: Date.now().toString(), date: advDate || date, type: 'Entrada', concept: `Anticipo ${client} (${num})`, cat: 'Cobro Cliente / Anticipo', amount: advance });
                 }
             }
             closeModals();
-            saveDB();
+            saveData();
+        }
+
+        function renderQuotes() {
+            const tbody = document.querySelector('#quotes-table tbody');
+            tbody.innerHTML = '';
+            db.quotes.forEach(q => {
+                let saldo = q.amount - q.advance;
+                let badgeClass = q.status === 'Finalizado' ? 'badge-success' : (q.status === 'En Proceso' ? 'badge-warning' : 'badge-success');
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${q.num}</b><br><small style="color:var(--text-muted)">${q.recNum}</small></td>
+                        <td>${q.date}</td>
+                        <td>${q.client}</td>
+                        <td>${q.car}</td>
+                        <td>$${Number(q.amount).toFixed(2)}</td>
+                        <td>$${Number(q.advance).toFixed(2)}</td>
+                        <td style="color: ${saldo > 0 ? 'var(--warning)' : 'var(--success)'}">$${saldo.toFixed(2)}</td>
+                        <td><span class="badge ${badgeClass}">${q.status}</span></td>
+                        <td class="no-print">
+                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteQuote('${q.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         function deleteQuote(id) {
-            if(confirm('¿Eliminar esta cotización?')) {
-                db.quotes = db.quotes.filter(x => x.id !== id);
-                saveDB();
+            if(confirm('¿Eliminar cotización?')) {
+                db.quotes = db.quotes.filter(q => q.id !== id);
+                saveData();
             }
         }
 
-        // 3. SUPPLIERS & INVENTORY LINKING
-        function renderSuppliers() {
-            let html = '';
-            db.suppliers.forEach(s => {
-                let balance = s.amount - s.paid;
-                html += `<tr>
-                    <td><b>${s.name}</b></td>
-                    <td>${s.invoice}</td>
-                    <td>${s.date}</td>
-                    <td>${s.item}</td>
-                    <td>${s.qty}</td>
-                    <td>$${Number(s.amount).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                    <td>$${Number(s.paid).toLocaleString('es-MX', {minimumFractionDigits:2})} <br><span style="font-size:10px; color:var(--text-muted);">${s.payDate || ''}</span></td>
-                    <td style="color: ${balance > 0 ? 'var(--warning)' : 'var(--success)'};">$${balance.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                    <td class="no-print">
-                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteSupplier('${s.id}')">Eliminar</button>
-                    </td>
-                </tr>`;
-            });
-            document.querySelector('#suppliers-table tbody').innerHTML = html;
-        }
-
+        // --- SUPPLIERS & INVENTORY SYNC ---
         function openSupplierModal() {
             document.getElementById('s-id').value = '';
             document.getElementById('s-name').value = '';
@@ -796,81 +757,71 @@
         }
 
         function saveSupplier() {
-            let data = {
-                id: Date.now().toString(),
-                name: document.getElementById('s-name').value,
-                invoice: document.getElementById('s-invoice').value,
-                date: document.getElementById('s-date').value,
-                item: document.getElementById('s-item').value,
-                qty: parseInt(document.getElementById('s-qty').value) || 1,
-                amount: parseFloat(document.getElementById('s-amount').value) || 0,
-                paid: parseFloat(document.getElementById('s-paid').value) || 0,
-                payDate: document.getElementById('s-pay-date').value
-            };
-            db.suppliers.push(data);
+            const id = document.getElementById('s-id').value || Date.now().toString();
+            const name = document.getElementById('s-name').value;
+            const invoice = document.getElementById('s-invoice').value;
+            const date = document.getElementById('s-date').value;
+            const item = document.getElementById('s-item').value;
+            const qty = Number(document.getElementById('s-qty').value);
+            const amount = Number(document.getElementById('s-amount').value);
+            const paid = Number(document.getElementById('s-paid').value);
+            const payDate = document.getElementById('s-pay-date').value;
 
-            // AUTOMATICALLY UPDATE INVENTORY (ADD STOCK)
-            let existingItem = db.inventory.find(i => i.desc.toLowerCase() === data.item.toLowerCase());
-            if(existingItem) {
-                existingItem.stock += data.qty;
+            if(!name || !invoice || !item || !amount) { alert('Complete los campos requeridos'); return; }
+
+            db.suppliers.push({ id, name, invoice, date, item, qty, amount, paid, payDate });
+
+            // Auto update inventory
+            let existingInv = db.inventory.find(i => i.desc.toLowerCase() === item.toLowerCase());
+            if(existingInv) {
+                existingInv.stock += qty;
+                existingInv.prov = name;
             } else {
-                db.inventory.push({
-                    id: Date.now().toString(),
-                    sku: 'SKU-' + Math.floor(100 + Math.random() * 900),
-                    desc: data.item,
-                    prov: data.name,
-                    stock: data.qty,
-                    min: 2
-                });
+                db.inventory.push({ id: Date.now().toString(), sku: 'SKU-' + Math.floor(100+Math.random()*900), desc: item, prov: name, stock: qty, min: 2 });
             }
 
-            // Log cash exit for payment
-            if(data.paid > 0) {
-                db.cashflow.push({
-                    id: Date.now().toString() + 'c',
-                    date: data.payDate || data.date,
-                    type: 'Salida',
-                    concept: 'Pago Proveedor ' + data.name + ' (' + data.invoice + ')',
-                    cat: 'Pago Proveedor',
-                    amount: data.paid
-                });
+            if(paid > 0) {
+                db.cash.push({ id: Date.now().toString(), date: payDate || date, type: 'Salida', concept: `Pago factura ${invoice} - ${name}`, cat: 'Pago Proveedor', amount: paid });
             }
 
             closeModals();
-            saveDB();
+            saveData();
+        }
+
+        function renderSuppliers() {
+            const tbody = document.querySelector('#suppliers-table tbody');
+            tbody.innerHTML = '';
+            db.suppliers.forEach(s => {
+                let saldo = s.amount - s.paid;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${s.name}</b></td>
+                        <td>${s.invoice}</td>
+                        <td>${s.date}</td>
+                        <td>${s.item}</td>
+                        <td>${s.qty}</td>
+                        <td>$${s.amount.toFixed(2)}</td>
+                        <td>$${s.paid.toFixed(2)}</td>
+                        <td style="color:${saldo > 0 ? 'var(--warning)' : 'var(--success)'}">$${saldo.toFixed(2)}</td>
+                        <td class="no-print">
+                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteSupplier('${s.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         function deleteSupplier(id) {
-            if(confirm('¿Eliminar este registro de proveedor?')) {
-                db.suppliers = db.suppliers.filter(x => x.id !== id);
-                saveDB();
+            if(confirm('¿Eliminar registro?')) {
+                db.suppliers = db.suppliers.filter(s => s.id !== id);
+                saveData();
             }
         }
 
-        // 4. INVENTORY
-        function renderInventory() {
-            let html = '';
-            db.inventory.forEach(i => {
-                let isLow = i.stock <= i.min;
-                html += `<tr>
-                    <td><b>${i.sku}</b></td>
-                    <td>${i.desc}</td>
-                    <td>${i.prov || 'General'}</td>
-                    <td><b>${i.stock}</b></td>
-                    <td>${i.min}</td>
-                    <td><span class="badge ${isLow ? 'badge-danger' : 'badge-success'}">${isLow ? 'Stock Bajo ⚠️' : 'Óptimo ✓'}</span></td>
-                    <td class="no-print">
-                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editInventory('${i.id}')">Editar</button>
-                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteInventory('${i.id}')">Eliminar</button>
-                    </td>
-                </tr>`;
-            });
-            document.querySelector('#inventory-table tbody').innerHTML = html;
-        }
-
+        // --- INVENTORY ---
         function openInventoryModal() {
             document.getElementById('i-id').value = '';
-            document.getElementById('inv-sku').value = 'SKU-' + Math.floor(100 + Math.random() * 900);
+            document.getElementById('inv-sku').value = 'SKU-' + Math.floor(100+Math.random()*900);
             document.getElementById('inv-desc').value = '';
             document.getElementById('inv-prov').value = '';
             document.getElementById('inv-stock').value = '10';
@@ -878,164 +829,119 @@
             document.getElementById('modal-inventory').style.display = 'flex';
         }
 
-        function editInventory(id) {
-            let item = db.inventory.find(x => x.id === id);
-            if(!item) return;
-            document.getElementById('i-id').value = item.id;
-            document.getElementById('inv-sku').value = item.sku;
-            document.getElementById('inv-desc').value = item.desc;
-            document.getElementById('inv-prov').value = item.prov;
-            document.getElementById('inv-stock').value = item.stock;
-            document.getElementById('inv-min').value = item.min;
-            document.getElementById('modal-inventory').style.display = 'flex';
-        }
-
         function saveInventory() {
-            let id = document.getElementById('i-id').value;
-            let data = {
-                id: id || Date.now().toString(),
-                sku: document.getElementById('inv-sku').value,
-                desc: document.getElementById('inv-desc').value,
-                prov: document.getElementById('inv-prov').value,
-                stock: parseInt(document.getElementById('inv-stock').value) || 0,
-                min: parseInt(document.getElementById('inv-min').value) || 2
-            };
-            if(id) {
-                let idx = db.inventory.findIndex(x => x.id === id);
-                db.inventory[idx] = data;
+            const id = document.getElementById('i-id').value || Date.now().toString();
+            const sku = document.getElementById('inv-sku').value;
+            const desc = document.getElementById('inv-desc').value;
+            const prov = document.getElementById('inv-prov').value;
+            const stock = Number(document.getElementById('inv-stock').value);
+            const min = Number(document.getElementById('inv-min').value);
+
+            const index = db.inventory.findIndex(i => i.id === id);
+            if(index >= 0) {
+                db.inventory[index] = { id, sku, desc, prov, stock, min };
             } else {
-                db.inventory.push(data);
+                db.inventory.push({ id, sku, desc, prov, stock, min });
             }
             closeModals();
-            saveDB();
+            saveData();
+        }
+
+        function renderInventory() {
+            const tbody = document.querySelector('#inventory-table tbody');
+            tbody.innerHTML = '';
+            db.inventory.forEach(i => {
+                let low = i.stock <= i.min;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${i.sku}</b></td>
+                        <td>${i.desc}</td>
+                        <td>${i.prov || 'General'}</td>
+                        <td>${i.stock}</td>
+                        <td>${i.min}</td>
+                        <td><span class="badge ${low ? 'badge-danger' : 'badge-success'}">${low ? 'Stock Bajo' : 'Óptimo'}</span></td>
+                        <td class="no-print">
+                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteInventory('${i.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         function deleteInventory(id) {
-            if(confirm('¿Eliminar producto del inventario?')) {
-                db.inventory = db.inventory.filter(x => x.id !== id);
-                saveDB();
+            if(confirm('¿Eliminar producto?')) {
+                db.inventory = db.inventory.filter(i => i.id !== id);
+                saveData();
             }
         }
 
-        // 5. PAYROLL & ADVANCES
-        function populateEmployeeDropdown() {
-            let select = document.getElementById('p-employee');
-            let html = '';
-            db.employees.forEach(e => {
-                html += `<option value="${e.id}">${e.name} (${e.role})</option>`;
-            });
-            select.innerHTML = html;
-        }
-
-        function renderPayroll() {
-            let html = '';
-            db.payroll.forEach(p => {
-                let emp = db.employees.find(e => e.id === p.employeeId);
-                let empName = emp ? emp.name : 'Empleado Externo';
-                let net = p.base - p.advance;
-                html += `<tr>
-                    <td><b>${empName}</b></td>
-                    <td>${p.period}</td>
-                    <td>$${Number(p.base).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                    <td style="color:var(--warning);">-$${Number(p.advance).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                    <td><b>$${net.toLocaleString('es-MX', {minimumFractionDigits:2})}</b></td>
-                    <td><span class="badge ${p.status === 'Pagado' ? 'badge-success' : 'badge-warning'}">${p.status}</span></td>
-                    <td class="no-print">
-                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="printReceipt('${p.id}')">🖨️ Recibo</button>
-                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deletePayroll('${p.id}')">Eliminar</button>
-                    </td>
-                </tr>`;
-            });
-            document.querySelector('#payroll-table tbody').innerHTML = html;
-        }
-
+        // --- PAYROLL ---
         function openPayrollModal() {
             document.getElementById('p-id').value = '';
-            document.getElementById('p-period').value = 'Quincena Actual';
+            document.getElementById('p-period').value = 'Quincena Octubre 2026';
             document.getElementById('p-base').value = '';
             document.getElementById('p-advance').value = '0';
+            
+            const select = document.getElementById('p-employee');
+            select.innerHTML = '';
+            db.employees.forEach(e => {
+                select.innerHTML += `<option value="${e.id}">${e.name} (${e.role})</option>`;
+            });
+
             document.getElementById('modal-payroll').style.display = 'flex';
         }
 
         function savePayroll() {
-            let data = {
-                id: Date.now().toString(),
-                employeeId: document.getElementById('p-employee').value,
-                period: document.getElementById('p-period').value,
-                base: parseFloat(document.getElementById('p-base').value) || 0,
-                advance: parseFloat(document.getElementById('p-advance').value) || 0,
-                status: document.getElementById('p-status').value
-            };
-            db.payroll.push(data);
+            const id = document.getElementById('p-id').value || Date.now().toString();
+            const employeeId = document.getElementById('p-employee').value;
+            const period = document.getElementById('p-period').value;
+            const base = Number(document.getElementById('p-base').value);
+            const advance = Number(document.getElementById('p-advance').value);
+            const status = document.getElementById('p-status').value;
 
-            // Log cash exit
-            db.cashflow.push({
-                id: Date.now().toString() + 'p',
-                date: new Date().toISOString().split('T')[0],
-                type: 'Salida',
-                concept: 'Pago Nómina (' + data.period + ')',
-                cat: 'Nómina',
-                amount: (data.base - data.advance)
-            });
+            if(!period || !base) { alert('Complete los datos'); return; }
+
+            db.payroll.push({ id, employeeId, period, base, advance, status });
+            if(status === 'Pagado') {
+                let net = base - advance;
+                let emp = db.employees.find(e => e.id === employeeId);
+                db.cash.push({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], type: 'Salida', concept: `Nómina ${emp ? emp.name : ''} - ${period}`, cat: 'Nómina', amount: net });
+            }
 
             closeModals();
-            saveDB();
+            saveData();
+        }
+
+        function renderPayroll() {
+            const tbody = document.querySelector('#payroll-table tbody');
+            tbody.innerHTML = '';
+            db.payroll.forEach(p => {
+                let emp = db.employees.find(e => e.id === p.employeeId);
+                let net = p.base - p.advance;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${emp ? emp.name : 'Desconocido'}</b><br><small style="color:var(--text-muted)">${emp ? emp.role : ''}</small></td>
+                        <td>${p.period}</td>
+                        <td>$${p.base.toFixed(2)}</td>
+                        <td>$${p.advance.toFixed(2)}</td>
+                        <td><b>$${net.toFixed(2)}</b></td>
+                        <td><span class="badge ${p.status === 'Pagado' ? 'badge-success' : 'badge-warning'}">${p.status}</span></td>
+                        <td class="no-print">
+                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deletePayroll('${p.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         function deletePayroll(id) {
-            if(confirm('¿Eliminar registro de nómina?')) {
-                db.payroll = db.payroll.filter(x => x.id !== id);
-                saveDB();
+            if(confirm('¿Eliminar registro?')) {
+                db.payroll = db.payroll.filter(p => p.id !== id);
+                saveData();
             }
         }
 
-        function printReceipt(id) {
-            let p = db.payroll.find(x => x.id === id);
-            let emp = db.employees.find(e => e.id === p.employeeId);
-            let net = p.base - p.advance;
-            let win = window.open('', '', 'width=700,height=600');
-            win.document.write(`
-                <html><head><title>Recibo de Nómina - iCar Lab</title>
-                <style>body{font-family:sans-serif; padding:30px;} h2{color:#f97316;}</style></head>
-                <body>
-                    <h2>iCar Lab - Comprobante de Pago de Nómina</h2>
-                    <p><b>Fecha:</b> ${new Date().toLocaleDateString()}</p>
-                    <hr>
-                    <p><b>Empleado:</b> ${emp ? emp.name : 'N/A'}</p>
-                    <p><b>Puesto:</b> ${emp ? emp.role : 'N/A'}</p>
-                    <p><b>Período:</b> ${p.period}</p>
-                    <hr>
-                    <p>Sueldo Base: $${p.base.toFixed(2)}</p>
-                    <p>Anticipos / Descuentos: -$${p.advance.toFixed(2)}</p>
-                    <h3>Total Neto Pagado: $${net.toFixed(2)}</h3>
-                    <br><br><br>
-                    <p style="text-align:center;">____________________________________<br>Firma de Conformidad del Empleado</p>
-                </body></html>
-            `);
-            win.document.close();
-            win.print();
-        }
-
-        // 6. EMPLOYEES & VACATIONS
-        function renderEmployees() {
-            let html = '';
-            db.employees.forEach(e => {
-                let available = e.vacTotal - e.vacUsed;
-                html += `<tr>
-                    <td><b>${e.name}</b></td>
-                    <td>${e.role}</td>
-                    <td>${e.phone || 'N/A'}</td>
-                    <td>${e.vacTotal} días</td>
-                    <td>${e.vacUsed} días</td>
-                    <td><b style="color:var(--success);">${available} días</b></td>
-                    <td class="no-print">
-                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteEmployee('${e.id}')">Eliminar</button>
-                    </td>
-                </tr>`;
-            });
-            document.querySelector('#employees-table tbody').innerHTML = html;
-        }
-
+        // --- EMPLOYEES ---
         function openEmployeeModal() {
             document.getElementById('e-id').value = '';
             document.getElementById('emp-name').value = '';
@@ -1047,45 +953,51 @@
         }
 
         function saveEmployee() {
-            let data = {
-                id: Date.now().toString(),
-                name: document.getElementById('emp-name').value,
-                role: document.getElementById('emp-role').value,
-                phone: document.getElementById('emp-phone').value,
-                vacTotal: parseInt(document.getElementById('emp-vac-total').value) || 12,
-                vacUsed: parseInt(document.getElementById('emp-vac-used').value) || 0
-            };
-            db.employees.push(data);
+            const id = document.getElementById('e-id').value || Date.now().toString();
+            const name = document.getElementById('emp-name').value;
+            const role = document.getElementById('emp-role').value;
+            const phone = document.getElementById('emp-phone').value;
+            const vacTotal = Number(document.getElementById('emp-vac-total').value);
+            const vacUsed = Number(document.getElementById('emp-vac-used').value);
+
+            if(!name || !role) { alert('Ingrese nombre y puesto'); return; }
+
+            db.employees.push({ id, name, role, phone, vacTotal, vacUsed });
             closeModals();
-            saveDB();
+            saveData();
+        }
+
+        function renderEmployees() {
+            const tbody = document.querySelector('#employees-table tbody');
+            tbody.innerHTML = '';
+            db.employees.forEach(e => {
+                let available = e.vacTotal - e.vacUsed;
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${e.name}</b></td>
+                        <td>${e.role}</td>
+                        <td>${e.phone || 'N/A'}</td>
+                        <td>${e.vacTotal} días</td>
+                        <td>${e.vacUsed} días</td>
+                        <td style="color:var(--success); font-weight:bold;">${available} días</td>
+                        <td class="no-print">
+                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteEmployee('${e.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         function deleteEmployee(id) {
             if(confirm('¿Eliminar empleado?')) {
-                db.employees = db.employees.filter(x => x.id !== id);
-                saveDB();
+                db.employees = db.employees.filter(e => e.id !== id);
+                saveData();
             }
         }
 
-        // 7. CASHFLOW (ENTRADAS Y SALIDAS)
-        function renderCashflow() {
-            let html = '';
-            db.cashflow.forEach(c => {
-                html += `<tr>
-                    <td>${c.date}</td>
-                    <td><span class="badge ${c.type === 'Entrada' ? 'badge-success' : 'badge-danger'}">${c.type}</span></td>
-                    <td>${c.concept}</td>
-                    <td>${c.cat}</td>
-                    <td style="font-weight:bold; color:${c.type === 'Entrada' ? 'var(--success)' : 'var(--danger)'};">$${Number(c.amount).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
-                    <td class="no-print">
-                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteCash('${c.id}')">Eliminar</button>
-                    </td>
-                </tr>`;
-            });
-            document.querySelector('#cash-table tbody').innerHTML = html;
-        }
-
+        // --- CASHFLOW ---
         function openCashModal() {
+            document.getElementById('c-id').value = '';
             document.getElementById('cs-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('cs-concept').value = '';
             document.getElementById('cs-amount').value = '';
@@ -1093,63 +1005,76 @@
         }
 
         function saveCash() {
-            let data = {
-                id: Date.now().toString(),
-                date: document.getElementById('cs-date').value,
-                type: document.getElementById('cs-type').value,
-                concept: document.getElementById('cs-concept').value,
-                cat: document.getElementById('cs-cat').value,
-                amount: parseFloat(document.getElementById('cs-amount').value) || 0
-            };
-            db.cashflow.push(data);
+            const id = document.getElementById('c-id').value || Date.now().toString();
+            const date = document.getElementById('cs-date').value;
+            const type = document.getElementById('cs-type').value;
+            const concept = document.getElementById('cs-concept').value;
+            const cat = document.getElementById('cs-cat').value;
+            const amount = Number(document.getElementById('cs-amount').value);
+
+            if(!concept || !amount) { alert('Complete los campos'); return; }
+
+            db.cash.push({ id, date, type, concept, cat, amount });
             closeModals();
-            saveDB();
+            saveData();
+        }
+
+        function renderCash() {
+            const tbody = document.querySelector('#cash-table tbody');
+            tbody.innerHTML = '';
+            db.cash.forEach(c => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${c.date}</td>
+                        <td><span class="badge ${c.type === 'Entrada' ? 'badge-success' : 'badge-danger'}">${c.type}</span></td>
+                        <td>${c.concept}</td>
+                        <td>${c.cat}</td>
+                        <td style="color: ${c.type === 'Entrada' ? 'var(--success)' : 'var(--danger)'}">$${c.amount.toFixed(2)}</td>
+                        <td class="no-print">
+                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteCash('${c.id}')">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         function deleteCash(id) {
-            if(confirm('¿Eliminar movimiento de caja?')) {
-                db.cashflow = db.cashflow.filter(x => x.id !== id);
-                saveDB();
+            if(confirm('¿Eliminar movimiento?')) {
+                db.cash = db.cash.filter(c => c.id !== id);
+                saveData();
             }
         }
 
-        // 8. REPORTS
+        // --- REPORTS ---
         function renderReports() {
-            let type = document.getElementById('report-type').value;
-            let title = type === 'weekly' ? 'Reporte Bloque Semanal' : (type === 'monthly' ? 'Reporte Bloque Mensual' : 'Reporte Bloque Anual');
+            const type = document.getElementById('report-type').value;
+            const container = document.getElementById('report-content');
             
-            let totalIn = db.quotes.reduce((acc, q) => acc + Number(q.advance), 0) + db.cashflow.filter(c => c.type === 'Entrada').reduce((acc, c) => acc + Number(c.amount), 0);
-            let totalOut = db.suppliers.reduce((acc, s) => acc + Number(s.paid), 0) + db.payroll.reduce((acc, p) => acc + (Number(p.base) - Number(p.advance)), 0) + db.cashflow.filter(c => c.type === 'Salida').reduce((acc, c) => acc + Number(c.amount), 0);
-            let net = totalIn - totalOut;
+            let totalIncome = db.cash.filter(c => c.type === 'Entrada').reduce((a,b)=>a+b.amount,0);
+            let totalOut = db.cash.filter(c => c.type === 'Salida').reduce((a,b)=>a+b.amount,0);
+            let net = totalIncome - totalOut;
 
-            let html = `
-                <h3 style="color:var(--accent-orange); margin-bottom:15px;">iCar Lab - ${title}</h3>
-                <p><b>Fecha de emisión:</b> ${new Date().toLocaleDateString()}</p>
+            container.innerHTML = `
+                <h3 style="color:var(--accent-orange); margin-bottom:10px;">Reporte Financiero: Bloque ${type.toUpperCase()}</h3>
+                <p><b>Sucursal:</b> Querétaro QRO | <b>Fecha de Emisión:</b> ${new Date().toLocaleDateString()}</p>
                 <hr style="border-color:var(--border-color); margin: 15px 0;">
                 <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:20px;">
-                    <div class="metric-card"><div class="title">Total Entradas</div><div class="value" style="color:var(--success);">$${totalIn.toFixed(2)}</div></div>
-                    <div class="metric-card"><div class="title">Total Salidas</div><div class="value" style="color:var(--danger);">$${totalOut.toFixed(2)}</div></div>
-                    <div class="metric-card"><div class="title">Utilidad del Bloque</div><div class="value">$${net.toFixed(2)}</div></div>
+                    <div class="card" style="margin:0;"><div>Entradas Totales</div><div style="font-size:18px; color:var(--success);">$${totalIncome.toFixed(2)}</div></div>
+                    <div class="card" style="margin:0;"><div>Salidas Totales</div><div style="font-size:18px; color:var(--danger);">$${totalOut.toFixed(2)}</div></div>
+                    <div class="card" style="margin:0;"><div>Balance Neto</div><div style="font-size:18px; color:${net>=0?'var(--success)':'var(--danger)'};">$${net.toFixed(2)}</div></div>
                 </div>
-                <h4>Detalle Operativo:</h4>
+                <h4>Resumen Operativo:</h4>
                 <ul>
-                    <li>Cotizaciones / Unidades activas: ${db.quotes.length}</li>
-                    <li>Proveedores y facturas registradas: ${db.suppliers.length}</li>
-                    <li>Productos en inventario: ${db.inventory.length}</li>
-                    <li>Empleados registrados: ${db.employees.length}</li>
+                    <li>Cotizaciones / Unidades activas registradas: ${db.quotes.length}</li>
+                    <li>Facturas de Proveedores procesadas: ${db.suppliers.length}</li>
+                    <li>Artículos en Inventario: ${db.inventory.length}</li>
+                    <li>Empleados activos: ${db.employees.length}</li>
                 </ul>
             `;
-            document.getElementById('report-content').innerHTML = html;
         }
 
-        // Helpers
-        function closeModals() {
-            document.querySelectorAll('.modal-bg').forEach(m => m.style.display = 'none');
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            renderAll();
-        });
+        // Initial load
+        refreshAll();
     </script>
 </body>
 </html>
