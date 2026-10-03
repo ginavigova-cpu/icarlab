@@ -17,6 +17,7 @@
             --border-color: #1e293b;
             --success: #10b981;
             --danger: #ef4444;
+            --primary: #3b82f6;
         }
         * {
             box-sizing: border-box;
@@ -75,18 +76,22 @@
             gap: 5px;
             flex-grow: 1;
         }
-        .nav-item a {
+        .nav-item button {
+            width: 100%;
+            background: transparent;
+            border: none;
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 10px 12px;
             color: var(--text-muted);
-            text-decoration: none;
+            text-align: left;
             border-radius: 8px;
             font-size: 13px;
+            cursor: pointer;
             transition: all 0.2s;
         }
-        .nav-item.active a, .nav-item a:hover {
+        .nav-item.active button, .nav-item button:hover {
             background-color: rgba(249, 115, 22, 0.15);
             color: var(--accent-orange);
         }
@@ -189,11 +194,15 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: background 0.2s;
         }
         .btn-update {
             background: var(--accent-orange);
             border-color: var(--accent-orange);
             font-weight: 500;
+        }
+        .btn-update:hover {
+            opacity: 0.9;
         }
         /* Metrics Grid */
         .metrics-grid {
@@ -244,7 +253,7 @@
         .icon-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .icon-red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .icon-orange { background: rgba(249, 115, 22, 0.1); color: var(--accent-orange); }
-        .icon-blue { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .icon-blue { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
 
         /* Charts Row */
         .charts-row {
@@ -252,7 +261,7 @@
             grid-template-columns: 2fr 1fr;
             gap: 20px;
         }
-        .chart-card {
+        .chart-card, .table-card {
             background-color: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
@@ -274,6 +283,59 @@
             justify-content: center;
             align-items: center;
         }
+
+        /* Dynamic Section Views */
+        .view-section {
+            display: none;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        /* Tables for Modules */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .badge-warning { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
+
+        /* Notification Toast */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -291,18 +353,18 @@
             
             <div class="nav-section-title">Módulos Principales</div>
             <ul class="nav-menu">
-                <li class="nav-item active"><a href="#">📊 Dashboard & Reportes</a></li>
-                <li class="nav-item"><a href="#">📋 Unidades & Cotizaciones</a></li>
-                <li class="nav-item"><a href="#">🚚 Proveedores & Requisiciones</a></li>
-                <li class="nav-item"><a href="#">💰 Cálculo de Nómina</a></li>
-                <li class="nav-item"><a href="#">👥 Empleados & Vacaciones</a></li>
-                <li class="nav-item"><a href="#">📁 Caja Chica</a></li>
-                <li class="nav-item"><a href="#">📦 Inventario</a></li>
+                <li class="nav-item active" id="nav-dashboard"><button onclick="switchView('dashboard')">📊 Dashboard & Reportes</button></li>
+                <li class="nav-item" id="nav-units"><button onclick="switchView('units')">📋 Unidades & Cotizaciones</button></li>
+                <li class="nav-item" id="nav-suppliers"><button onclick="switchView('suppliers')">🚚 Proveedores & Requisiciones</button></li>
+                <li class="nav-item" id="nav-payroll"><button onclick="switchView('payroll')">💰 Cálculo de Nómina</button></li>
+                <li class="nav-item" id="nav-employees"><button onclick="switchView('employees')">👥 Empleados & Vacaciones</button></li>
+                <li class="nav-item" id="nav-cash"><button onclick="switchView('cash')">📁 Caja Chica</button></li>
+                <li class="nav-item" id="nav-inventory"><button onclick="switchView('inventory')">📦 Inventario</button></li>
             </ul>
         </div>
 
         <div class="sidebar-footer">
-            <div class="version">iCar Lab v4.0</div>
+            <div class="version">iCar Lab v4.1</div>
             <div class="branch">Querétaro QRO</div>
         </div>
     </aside>
@@ -323,73 +385,212 @@
         </header>
 
         <div class="dashboard-content">
-            <div class="dashboard-header">
-                <div>
-                    <h2>Resumen General iCar Lab</h2>
-                    <p>Indicadores financieros y métricas operacionales dinámicas.</p>
+
+            <!-- VIEW 1: DASHBOARD -->
+            <div id="view-dashboard" class="view-section active">
+                <div class="dashboard-header">
+                    <div>
+                        <h2 id="welcome-title">Resumen General iCar Lab</h2>
+                        <p>Indicadores financieros y métricas operacionales dinámicas.</p>
+                    </div>
+                    <div class="dashboard-actions">
+                        <button class="btn-select" onclick="toggleMonth()">Vista Mensual ▾</button>
+                        <button class="btn-update" onclick="refreshData()">🔄 Actualizar Datos</button>
+                    </div>
                 </div>
-                <div class="dashboard-actions">
-                    <button class="btn-select">Vista Mensual ▾</button>
-                    <button class="btn-update">🔄 Actualizar</button>
+
+                <!-- Metrics Grid -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="title">Ingresos Totales</div>
+                        <div class="value" id="val-income">$16.500,00</div>
+                        <div class="footer-info">↑ 2 abonos recientes</div>
+                        <div class="icon-box icon-green">📊</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="title">Egresos Totales</div>
+                        <div class="value" id="val-expenses">$12.400,20</div>
+                        <div class="footer-info danger">↓ 1 pago a proveedores</div>
+                        <div class="icon-box icon-red">📉</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="title">Utilidad Bruta</div>
+                        <div class="value" id="val-profit">$4.099,80</div>
+                        <div class="footer-info neutral">Diferencia neta estimada</div>
+                        <div class="icon-box icon-orange">💲</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="title">Vehículos en Taller</div>
+                        <div class="value">1</div>
+                        <div class="footer-info neutral">Trabajos activos en proceso</div>
+                        <div class="icon-box icon-blue">🚗</div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span>📊 Reporte Comparativo de Flujo Financiero</span>
+                            <span style="color: var(--text-muted); font-size: 12px;" id="chart-period">Mensual</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="barChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <span>🎯 Distribución de Cotizaciones</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="doughnutChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Metrics Grid -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="title">Ingresos Totales (Pagos + Anticipos)</div>
-                    <div class="value">$16.500,00</div>
-                    <div class="footer-info">↑ 2 abonos de clientes</div>
-                    <div class="icon-box icon-green">📊</div>
+            <!-- VIEW 2: UNITS / COTIZACIONES -->
+            <div id="view-units" class="view-section">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Unidades & Cotizaciones</h2>
+                        <p>Control de vehículos ingresados y presupuestos activos.</p>
+                    </div>
+                    <div class="dashboard-actions">
+                        <button class="btn-update" onclick="showToast('Nueva cotización simulada')">+ Nueva Unidad</button>
+                    </div>
                 </div>
-                <div class="metric-card">
-                    <div class="title">Egresos Totales (Proveedores + Nómina)</div>
-                    <div class="value">$12.400,20</div>
-                    <div class="footer-info danger">↓ 1 pagos a proveedores</div>
-                    <div class="icon-box icon-red">📉</div>
-                </div>
-                <div class="metric-card">
-                    <div class="title">Utilidad Bruta</div>
-                    <div class="value">$4099,80</div>
-                    <div class="footer-info neutral">Diferencia neta estimada</div>
-                    <div class="icon-box icon-orange">💲</div>
-                </div>
-                <div class="metric-card">
-                    <div class="title">Vehículos en Taller</div>
-                    <div class="value">1</div>
-                    <div class="footer-info neutral">Trabajos activos en proceso</div>
-                    <div class="icon-box icon-blue">🚗</div>
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Folio</th>
+                                <th>Vehículo</th>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Estatus</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ICAR-302</td>
+                                <td>Chevrolet Silverado 2024</td>
+                                <td>Flensa QRO</td>
+                                <td>Corrección de pintura & PPF</td>
+                                <td><span class="badge badge-success">En Proceso</span></td>
+                            </tr>
+                            <tr>
+                                <td>#ICAR-301</td>
+                                <td>BMW Serie 3</td>
+                                <td>Cliente Particular</td>
+                                <td>Cerámico Premium</td>
+                                <td><span class="badge badge-warning">Cotizado</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Charts Row -->
-            <div class="charts-row">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <span>📊 Reporte Comparativo de Flujo Financiero</span>
-                        <span style="color: var(--text-muted); font-size: 12px;">Mensual</span>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="barChart"></canvas>
+            <!-- VIEW 3: SUPPLIERS -->
+            <div id="view-suppliers" class="view-section">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Proveedores & Requisiciones</h2>
+                        <p>Gestión de insumos y órdenes de compra para taller.</p>
                     </div>
                 </div>
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <span>🎯 Distribución de Cotizaciones por Estatus</span>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="doughnutChart"></canvas>
-                    </div>
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Proveedor</th>
+                                <th>Insumo Principal</th>
+                                <th>Estatus de Pedido</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Chemical Guys QRO</td>
+                                <td>Shampoo pH Neutro & Microfibras</td>
+                                <td><span class="badge badge-success">Entregado</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            <!-- VIEW 4: PAYROLL -->
+            <div id="view-payroll" class="view-section">
+                <div class="dashboard-header">
+                    <div>
+                        <h2>Cálculo de Nómina</h2>
+                        <p>Control de pagos quincenales al equipo técnico.</p>
+                    </div>
+                </div>
+                <div class="table-card">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Empleado</th>
+                                <th>Puesto</th>
+                                <th>Período</th>
+                                <th>Monto Quincenal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Carlos Mendoza</td>
+                                <td>Técnico Detallador Sr.</td>
+                                <td>Quincena 1 (Octubre)</td>
+                                <td>$6.200,00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- VIEW 5: EMPLOYEES -->
+            <div id="view-employees" class="view-section">
+                <div class="dashboard-header">
+                    <h2>Empleados & Vacaciones</h2>
+                    <p>Directorio y control de asistencias.</p>
+                </div>
+            </div>
+
+            <!-- VIEW 6: CASH -->
+            <div id="view-cash" class="view-section">
+                <div class="dashboard-header">
+                    <h2>Caja Chica</h2>
+                    <p>Gastos menores diarios del taller.</p>
+                </div>
+            </div>
+
+            <!-- VIEW 7: INVENTORY -->
+            <div id="view-inventory" class="view-section">
+                <div class="dashboard-header">
+                    <h2>Inventario de Productos</h2>
+                    <p>Stock de químicos, herramientas y consumibles.</p>
+                </div>
+            </div>
+
         </div>
     </main>
 
+    <!-- Notification Toast -->
+    <div id="toast">¡Datos actualizados correctamente!</div>
+
     <script>
+        // Chart instances
+        let barChart, doughnutChart;
+
         window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+        });
+
+        function initCharts() {
             // Bar Chart
             const ctxBar = document.getElementById('barChart').getContext('2d');
-            new Chart(ctxBar, {
+            barChart = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
                     labels: ['Ingresos', 'Egresos', 'Utilidad'],
@@ -412,7 +613,7 @@
 
             // Doughnut Chart
             const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
-            new Chart(ctxDoughnut, {
+            doughnutChart = new Chart(ctxDoughnut, {
                 type: 'doughnut',
                 data: {
                     labels: ['Aprobadas', 'Pendientes', 'Rechazadas'],
@@ -431,7 +632,54 @@
                     cutout: '70%'
                 }
             });
-        });
+        }
+
+        // Switch between sidebar views dynamically
+        function switchView(viewName) {
+            // Hide all views
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            // Remove active class from nav items
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            // Show selected view
+            document.getElementById('view-' + viewName).classList.add('active');
+            // Highlight nav item
+            document.getElementById('nav-' + viewName).classList.add('active');
+        }
+
+        // Refresh action
+        function refreshData() {
+            showToast('¡Sincronizado con éxito!');
+        }
+
+        let isMonthly = true;
+        function toggleMonth() {
+            isMonthly = !isMonthly;
+            document.getElementById('chart-period').innerText = isMonthly ? 'Mensual' : 'Anual';
+            if (isMonthly) {
+                barChart.data.datasets[0].data = [16500, 12400.20, 4099.80];
+                document.getElementById('val-income').innerText = '$16.500,00';
+                document.getElementById('val-expenses').innerText = '$12.400,20';
+                document.getElementById('val-profit').innerText = '$4.099,80';
+            } else {
+                barChart.data.datasets[0].data = [198000, 148800, 49200];
+                document.getElementById('val-income').innerText = '$198.000,00';
+                document.getElementById('val-expenses').innerText = '$148.800,00';
+                document.getElementById('val-profit').innerText = '$49.200,00';
+            }
+            barChart.update();
+            showToast('Vista cambiada correctamente');
+        }
+
+        // Toast notification helper
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
     </script>
 </body>
 </html>
