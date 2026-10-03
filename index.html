@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iCar Lab - Sistema de Gestión</title>
+    <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -268,6 +269,7 @@
         .chart-container {
             position: relative;
             height: 250px;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -282,7 +284,7 @@
             <div class="logo-area">
                 <div class="logo-icon">🚗</div>
                 <div class="logo-text">
-                    <h1>iCAR - LAB</h1>
+                    <h1>ICAR - LAB</h1>
                     <span>Estética Automotriz</span>
                 </div>
             </div>
@@ -384,49 +386,51 @@
     </main>
 
     <script>
-        // Bar Chart
-        const ctxBar = document.getElementById('barChart').getContext('2d');
-        new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: ['Ingresos', 'Egresos', 'Utilidad'],
-                datasets: [{
-                    data: [16500, 12400.20, 4099.80],
-                    backgroundColor: ['#10b981', '#ef4444', '#f97316'],
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                }
-            }
-        });
-
-        // Doughnut Chart
-        const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
-        new Chart(ctxDoughnut, {
-            type: 'doughnut',
-            data: {
-                labels: ['Aprobadas', 'Pendientes', 'Rechazadas'],
-                datasets: [{
-                    data: [70, 20, 10],
-                    backgroundColor: ['#10b981', '#3b82f6', '#ef4444'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } }
+        window.addEventListener('DOMContentLoaded', () => {
+            // Bar Chart
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['Ingresos', 'Egresos', 'Utilidad'],
+                    datasets: [{
+                        data: [16500, 12400.20, 4099.80],
+                        backgroundColor: ['#10b981', '#ef4444', '#f97316'],
+                        borderRadius: 6
+                    }]
                 },
-                cutout: '70%'
-            }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    }
+                }
+            });
+
+            // Doughnut Chart
+            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+            new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Aprobadas', 'Pendientes', 'Rechazadas'],
+                    datasets: [{
+                        data: [70, 20, 10],
+                        backgroundColor: ['#10b981', '#3b82f6', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } }
+                    },
+                    cutout: '70%'
+                }
+            });
         });
     </script>
 </body>
