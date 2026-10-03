@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iCar Lab - Sistema de Gestión</title>
-    <!-- Chart.js CDN -->
+    <title>iCar Lab - Sistema ERP Integral</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -18,323 +17,89 @@
             --success: #10b981;
             --danger: #ef4444;
             --primary: #3b82f6;
+            --warning: #f59e0b;
         }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
         /* Sidebar */
         aside {
-            width: 260px;
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
+            width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color);
+            display: flex; flex-direction: column; justify-content: space-between; padding: 15px; overflow-y: auto;
         }
-        .logo-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-        .logo-icon {
-            color: var(--accent-orange);
-            font-size: 24px;
-        }
-        .logo-text h1 {
-            font-size: 18px;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-        .logo-text span {
-            font-size: 10px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-        .nav-section-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex-grow: 1;
-        }
+        .logo-area { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .logo-icon { color: var(--accent-orange); font-size: 22px; }
+        .logo-text h1 { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+        .logo-text span { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+        .nav-section-title { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 4px; }
         .nav-item button {
-            width: 100%;
-            background: transparent;
-            border: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            color: var(--text-muted);
-            text-align: left;
-            border-radius: 8px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s;
+            width: 100%; background: transparent; border: none; display: flex; align-items: center; gap: 10px;
+            padding: 9px 10px; color: var(--text-muted); text-align: left; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s;
         }
-        .nav-item.active button, .nav-item button:hover {
-            background-color: rgba(249, 115, 22, 0.15);
-            color: var(--accent-orange);
-        }
-        .sidebar-footer {
-            background-color: rgba(255,255,255,0.03);
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-        }
-        .sidebar-footer .version {
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .sidebar-footer .branch {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-        /* Main Content */
-        main {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-        }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 30px;
-            border-bottom: 1px solid var(--border-color);
-            background-color: var(--bg-main);
-        }
-        .branch-badge {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .avatar {
-            background: var(--accent-orange);
-            color: white;
-            font-weight: bold;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-        .user-info .name {
-            font-size: 13px;
-            font-weight: bold;
-        }
-        .user-info .role {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-        /* Dashboard Container */
-        .dashboard-content {
-            padding: 30px;
-        }
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 25px;
-        }
-        .dashboard-header h2 {
-            font-size: 22px;
-            margin-bottom: 5px;
-        }
-        .dashboard-header p {
-            color: var(--text-muted);
-            font-size: 13px;
-        }
-        .dashboard-actions {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-select, .btn-update {
-            background: var(--bg-card);
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-        .btn-update {
-            background: var(--accent-orange);
-            border-color: var(--accent-orange);
-            font-weight: 500;
-        }
-        .btn-update:hover {
-            opacity: 0.9;
-        }
-        /* Metrics Grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .metric-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-            position: relative;
-        }
-        .metric-card .title {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-        .metric-card .value {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
-        .metric-card .footer-info {
-            font-size: 11px;
-            color: var(--success);
-        }
-        .metric-card .footer-info.danger {
-            color: var(--danger);
-        }
-        .metric-card .footer-info.neutral {
-            color: var(--text-muted);
-        }
-        .metric-card .icon-box {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-        }
-        .icon-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .icon-red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .icon-orange { background: rgba(249, 115, 22, 0.1); color: var(--accent-orange); }
-        .icon-blue { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
+        .nav-item.active button, .nav-item button:hover { background-color: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
 
-        /* Charts Row */
-        .charts-row {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-        }
-        .chart-card, .table-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 20px;
-        }
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .chart-container {
-            position: relative;
-            height: 250px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        /* Main Area */
+        main { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; border-bottom: 1px solid var(--border-color); background-color: var(--bg-main); }
+        .branch-badge { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar { background: var(--accent-orange); color: white; font-weight: bold; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .user-info .name { font-size: 12px; font-weight: bold; }
+        .user-info .role { font-size: 10px; color: var(--text-muted); }
 
-        /* Dynamic Section Views */
-        .view-section {
-            display: none;
-        }
-        .view-section.active {
-            display: block;
-        }
+        /* Content Views */
+        .content-body { padding: 25px; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-header h2 { font-size: 20px; }
+        .section-header p { color: var(--text-muted); font-size: 12px; }
 
-        /* Tables for Modules */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 13px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border-color);
-        }
-        th {
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 500;
-        }
+        /* Buttons */
+        .btn { background: var(--accent-orange); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
+        .btn:hover { opacity: 0.9; }
+        .btn-secondary { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-danger { background: var(--danger); }
+        .btn-success { background: var(--success); }
+
+        /* Cards & Grids */
+        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .metric-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; position: relative; }
+        .metric-card .title { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .metric-card .value { font-size: 22px; font-weight: bold; }
+
+        .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { color: var(--text-muted); font-weight: 500; background: rgba(255,255,255,0.02); }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 500; }
         .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); }
-        .badge-warning { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
 
-        /* Notification Toast */
-        #toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--success);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 13px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            display: none;
-            z-index: 1000;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Forms & Modals */
+        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 11px; color: var(--text-muted); }
+        .form-group input, .form-group select, .form-group textarea { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px; border-radius: 6px; font-size: 12px; }
+        
+        .modal-bg { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 999; }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); width: 650px; max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 12px; }
+
+        /* Toast */
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 10px 20px; border-radius: 6px; font-size: 12px; display: none; z-index: 1000; }
+        
+        /* Print styles */
+        @media print {
+            aside, header, .btn, .no-print { display: none !important; }
+            body, main, .content-body { background: white !important; color: black !important; height: auto !important; overflow: visible !important; }
+            .card { border: 1px solid #ccc !important; background: white !important; color: black !important; box-shadow: none !important; }
+            table { color: black !important; }
+            th { background: #eee !important; color: black !important; }
         }
     </style>
 </head>
@@ -347,262 +112,551 @@
                 <div class="logo-icon">🚗</div>
                 <div class="logo-text">
                     <h1>ICAR - LAB</h1>
-                    <span>Estética Automotriz</span>
+                    <span>ERP Integral</span>
                 </div>
             </div>
             
             <div class="nav-section-title">Módulos Principales</div>
             <ul class="nav-menu">
-                <li class="nav-item active" id="nav-dashboard"><button onclick="switchView('dashboard')">📊 Dashboard & Reportes</button></li>
-                <li class="nav-item" id="nav-units"><button onclick="switchView('units')">📋 Unidades & Cotizaciones</button></li>
-                <li class="nav-item" id="nav-suppliers"><button onclick="switchView('suppliers')">🚚 Proveedores & Requisiciones</button></li>
-                <li class="nav-item" id="nav-payroll"><button onclick="switchView('payroll')">💰 Cálculo de Nómina</button></li>
+                <li class="nav-item active" id="nav-dashboard"><button onclick="switchView('dashboard')">📊 Dashboard General</button></li>
+                <li class="nav-item" id="nav-quotations"><button onclick="switchView('quotations')">📋 Cotizaciones & Recepción</button></li>
+                <li class="nav-item" id="nav-suppliers"><button onclick="switchView('suppliers')">🚚 Proveedores & Facturas</button></li>
+                <li class="nav-item" id="nav-inventory"><button onclick="switchView('inventory')">📦 Inventario & Stock</button></li>
+                <li class="nav-item" id="nav-payroll"><button onclick="switchView('payroll')">💰 Nómina & Anticipos</button></li>
                 <li class="nav-item" id="nav-employees"><button onclick="switchView('employees')">👥 Empleados & Vacaciones</button></li>
-                <li class="nav-item" id="nav-cash"><button onclick="switchView('cash')">📁 Caja Chica</button></li>
-                <li class="nav-item" id="nav-inventory"><button onclick="switchView('inventory')">📦 Inventario</button></li>
+                <li class="nav-item" id="nav-cashflow"><button onclick="switchView('cashflow')">💵 Entradas y Salidas (Caja)</button></li>
+                <li class="nav-item" id="nav-reports"><button onclick="switchView('reports')">📈 Reportes & Exportación</button></li>
             </ul>
         </div>
-
-        <div class="sidebar-footer">
-            <div class="version">iCar Lab v4.1</div>
-            <div class="branch">Querétaro QRO</div>
+        <div style="font-size: 10px; color: var(--text-muted); text-align: center; padding-top: 10px; border-top: 1px solid var(--border-color);">
+            iCar Lab v5.0 • Qro
         </div>
     </aside>
 
     <!-- Main Content -->
     <main>
         <header>
-            <div class="branch-badge">
-                🟢 Sucursal: Querétaro QRO
-            </div>
+            <div class="branch-badge">🟢 Sucursal: Querétaro QRO</div>
             <div class="user-profile">
                 <div class="avatar">AD</div>
                 <div class="user-info">
-                    <div class="name">Admin iCar</div>
-                    <div class="role">Gerencia General</div>
+                    <div class="name">Admin General</div>
+                    <div class="role">Gerencia iCar Lab</div>
                 </div>
             </div>
         </header>
 
-        <div class="dashboard-content">
+        <div class="content-body">
 
-            <!-- VIEW 1: DASHBOARD -->
+            <!-- 1. DASHBOARD -->
             <div id="view-dashboard" class="view-section active">
-                <div class="dashboard-header">
+                <div class="section-header">
                     <div>
-                        <h2 id="welcome-title">Resumen General iCar Lab</h2>
-                        <p>Indicadores financieros y métricas operacionales dinámicas.</p>
+                        <h2>Dashboard General</h2>
+                        <p>Resumen financiero y operativo en tiempo real.</p>
                     </div>
-                    <div class="dashboard-actions">
-                        <button class="btn-select" onclick="toggleMonth()">Vista Mensual ▾</button>
-                        <button class="btn-update" onclick="refreshData()">🔄 Actualizar Datos</button>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="dash-period" onchange="renderDashboard()" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:6px; border-radius:6px; font-size:12px;">
+                            <option value="weekly">Bloque Semanal</option>
+                            <option value="monthly" selected>Bloque Mensual</option>
+                            <option value="annual">Bloque Anual</option>
+                        </select>
+                        <button class="btn" onclick="renderDashboard()">🔄 Actualizar</button>
                     </div>
                 </div>
 
-                <!-- Metrics Grid -->
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="title">Ingresos Totales</div>
-                        <div class="value" id="val-income">$16.500,00</div>
-                        <div class="footer-info">↑ 2 abonos recientes</div>
-                        <div class="icon-box icon-green">📊</div>
+                        <div class="title">Ingresos Totales (Clientes)</div>
+                        <div class="value" id="d-income">$0.00</div>
                     </div>
                     <div class="metric-card">
-                        <div class="title">Egresos Totales</div>
-                        <div class="value" id="val-expenses">$12.400,20</div>
-                        <div class="footer-info danger">↓ 1 pago a proveedores</div>
-                        <div class="icon-box icon-red">📉</div>
+                        <div class="title">Egresos Totales (Proveedores + Nómina)</div>
+                        <div class="value" id="d-expenses">$0.00</div>
                     </div>
                     <div class="metric-card">
-                        <div class="title">Utilidad Bruta</div>
-                        <div class="value" id="val-profit">$4.099,80</div>
-                        <div class="footer-info neutral">Diferencia neta estimada</div>
-                        <div class="icon-box icon-orange">💲</div>
+                        <div class="title">Utilidad Neta</div>
+                        <div class="value" id="d-profit" style="color: var(--success);">$0.00</div>
                     </div>
                     <div class="metric-card">
-                        <div class="title">Vehículos en Taller</div>
-                        <div class="value">1</div>
-                        <div class="footer-info neutral">Trabajos activos en proceso</div>
-                        <div class="icon-box icon-blue">🚗</div>
+                        <div class="title">Vehículos / Unidades Activas</div>
+                        <div class="value" id="d-units">0</div>
                     </div>
                 </div>
 
-                <!-- Charts Row -->
-                <div class="charts-row">
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <span>📊 Reporte Comparativo de Flujo Financiero</span>
-                            <span style="color: var(--text-muted); font-size: 12px;" id="chart-period">Mensual</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="barChart"></canvas>
-                        </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div class="card">
+                        <div style="font-weight: bold; margin-bottom: 15px; font-size: 13px;">📊 Gráfica Financiera General</div>
+                        <div style="height: 250px; position:relative;"><canvas id="dashChart"></canvas></div>
                     </div>
-                    <div class="chart-card">
-                        <div class="chart-header">
-                            <span>🎯 Distribución de Cotizaciones</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="doughnutChart"></canvas>
-                        </div>
+                    <div class="card">
+                        <div style="font-weight: bold; margin-bottom: 15px; font-size: 13px;">⚠️ Alertas de Stock Bajo</div>
+                        <div id="stock-alerts-list" style="font-size: 12px; color: var(--text-muted);">Sin alertas críticas.</div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW 2: UNITS / COTIZACIONES -->
-            <div id="view-units" class="view-section">
-                <div class="dashboard-header">
+            <!-- 2. COTIZACIONES Y UNIDADES -->
+            <div id="view-quotations" class="view-section">
+                <div class="section-header">
                     <div>
-                        <h2>Unidades & Cotizaciones</h2>
-                        <p>Control de vehículos ingresados y presupuestos activos.</p>
+                        <h2>Cotizaciones & Recepción de Unidades</h2>
+                        <p>Control de presupuestos, anticipos, pagos y fechas de recepción.</p>
                     </div>
-                    <div class="dashboard-actions">
-                        <button class="btn-update" onclick="showToast('Nueva cotización simulada')">+ Nueva Unidad</button>
-                    </div>
+                    <button class="btn" onclick="openQuoteModal()">+ Nueva Cotización / Recepción</button>
                 </div>
-                <div class="table-card">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Folio</th>
-                                <th>Vehículo</th>
-                                <th>Cliente</th>
-                                <th>Servicio</th>
-                                <th>Estatus</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>#ICAR-302</td>
-                                <td>Chevrolet Silverado 2024</td>
-                                <td>Flensa QRO</td>
-                                <td>Corrección de pintura & PPF</td>
-                                <td><span class="badge badge-success">En Proceso</span></td>
-                            </tr>
-                            <tr>
-                                <td>#ICAR-301</td>
-                                <td>BMW Serie 3</td>
-                                <td>Cliente Particular</td>
-                                <td>Cerámico Premium</td>
-                                <td><span class="badge badge-warning">Cotizado</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                <div class="card">
+                    <div style="overflow-x: auto;">
+                        <table id="quotes-table">
+                            <thead>
+                                <tr>
+                                    <th>Folio / Recepción</th>
+                                    <th>Fecha</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Monto Total</th>
+                                    <th>Anticipos & Pagos</th>
+                                    <th>Saldo Pendiente</th>
+                                    <th>Estatus</th>
+                                    <th class="no-print">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <!-- VIEW 3: SUPPLIERS -->
+            <!-- 3. PROVEEDORES Y FACTURAS -->
             <div id="view-suppliers" class="view-section">
-                <div class="dashboard-header">
+                <div class="section-header">
                     <div>
-                        <h2>Proveedores & Requisiciones</h2>
-                        <p>Gestión de insumos y órdenes de compra para taller.</p>
+                        <h2>Proveedores & Facturas/Notas</h2>
+                        <p>Control de compras, facturas, anticipos y piezas ingresadas (que alimentan el inventario).</p>
+                    </div>
+                    <button class="btn" onclick="openSupplierModal()">+ Registrar Factura / Nota</button>
+                </div>
+
+                <div class="card">
+                    <div style="overflow-x: auto;">
+                        <table id="suppliers-table">
+                            <thead>
+                                <tr>
+                                    <th>Proveedor</th>
+                                    <th>Factura / Nota</th>
+                                    <th>Fecha Nota</th>
+                                    <th>Pieza / Insumo</th>
+                                    <th>Cant.</th>
+                                    <th>Monto Total</th>
+                                    <th>Anticipo / Pagado</th>
+                                    <th>Saldo Proveedor</th>
+                                    <th class="no-print">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="table-card">
-                    <table>
+            </div>
+
+            <!-- 4. INVENTARIO -->
+            <div id="view-inventory" class="view-section">
+                <div class="section-header">
+                    <div>
+                        <h2>Inventario & Stock</h2>
+                        <p>Actualización automática desde notas de proveedores con alertas de mínimo stock.</p>
+                    </div>
+                    <button class="btn" onclick="openInventoryModal()">+ Agregar Producto Manual</button>
+                </div>
+
+                <div class="card">
+                    <table id="inventory-table">
                         <thead>
                             <tr>
-                                <th>Proveedor</th>
-                                <th>Insumo Principal</th>
-                                <th>Estatus de Pedido</th>
+                                <th>Código / SKU</th>
+                                <th>Descripción de Pieza / Insumo</th>
+                                <th>Proveedor Frecuente</th>
+                                <th>Stock Actual</th>
+                                <th>Mínimo Alerta</th>
+                                <th>Estatus</th>
+                                <th class="no-print">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Chemical Guys QRO</td>
-                                <td>Shampoo pH Neutro & Microfibras</td>
-                                <td><span class="badge badge-success">Entregado</span></td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- VIEW 4: PAYROLL -->
+            <!-- 5. NÓMINA Y ANTICIPOS -->
             <div id="view-payroll" class="view-section">
-                <div class="dashboard-header">
+                <div class="section-header">
                     <div>
-                        <h2>Cálculo de Nómina</h2>
-                        <p>Control de pagos quincenales al equipo técnico.</p>
+                        <h2>Nómina & Anticipos a Empleados</h2>
+                        <p>Cálculo de pagos, anticipos aplicados y recibos imprimibles por empleado.</p>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <button class="btn btn-secondary no-print" onclick="window.print()">🖨️ Imprimir Todos los Recibos</button>
+                        <button class="btn" onclick="openPayrollModal()">+ Registrar Nómina / Anticipo</button>
                     </div>
                 </div>
-                <div class="table-card">
-                    <table>
+
+                <div class="card">
+                    <table id="payroll-table">
                         <thead>
                             <tr>
                                 <th>Empleado</th>
-                                <th>Puesto</th>
                                 <th>Período</th>
-                                <th>Monto Quincenal</th>
+                                <th>Sueldo Base</th>
+                                <th>Anticipos Descontados</th>
+                                <th>Total Neto a Pagar</th>
+                                <th>Estatus</th>
+                                <th class="no-print">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>Carlos Mendoza</td>
-                                <td>Técnico Detallador Sr.</td>
-                                <td>Quincena 1 (Octubre)</td>
-                                <td>$6.200,00</td>
-                            </tr>
-                        </tbody>
+                        <tbody></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- VIEW 5: EMPLOYEES -->
+            <!-- 6. EMPLEADOS Y VACACIONES -->
             <div id="view-employees" class="view-section">
-                <div class="dashboard-header">
-                    <h2>Empleados & Vacaciones</h2>
-                    <p>Directorio y control de asistencias.</p>
+                <div class="section-header">
+                    <div>
+                        <h2>Empleados & Control de Vacaciones</h2>
+                        <p>Directorio de personal y días de descanso acumulados.</p>
+                    </div>
+                    <button class="btn" onclick="openEmployeeModal()">+ Nuevo Empleado</button>
+                </div>
+
+                <div class="card">
+                    <table id="employees-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre Completo</th>
+                                <th>Puesto</th>
+                                <th>Teléfono</th>
+                                <th>Días Vacaciones Totales</th>
+                                <th>Días Disfrutados</th>
+                                <th>Días Disponibles</th>
+                                <th class="no-print">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- VIEW 6: CASH -->
-            <div id="view-cash" class="view-section">
-                <div class="dashboard-header">
-                    <h2>Caja Chica</h2>
-                    <p>Gastos menores diarios del taller.</p>
+            <!-- 7. ENTRADAS Y SALIDAS (CAJA) -->
+            <div id="view-cashflow" class="view-section">
+                <div class="section-header">
+                    <div>
+                        <h2>Entradas y Salidas de Caja</h2>
+                        <p>Registro de flujos relacionados con clientes, proveedores, gastos y otros.</p>
+                    </div>
+                    <button class="btn" onclick="openCashModal()">+ Registrar Movimiento</button>
+                </div>
+
+                <div class="card">
+                    <table id="cash-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Concepto / Relación</th>
+                                <th>Categoría</th>
+                                <th>Monto</th>
+                                <th class="no-print">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- VIEW 7: INVENTORY -->
-            <div id="view-inventory" class="view-section">
-                <div class="dashboard-header">
-                    <h2>Inventario de Productos</h2>
-                    <p>Stock de químicos, herramientas y consumibles.</p>
+            <!-- 8. REPORTES -->
+            <div id="view-reports" class="view-section">
+                <div class="section-header">
+                    <div>
+                        <h2>Reportes & Exportación</h2>
+                        <p>Bloques de análisis semanal, mensual y anual listos para imprimir o exportar.</p>
+                    </div>
+                    <button class="btn no-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+                </div>
+
+                <div class="card">
+                    <div class="form-group" style="max-width:300px; margin-bottom:20px;">
+                        <label>Seleccionar Bloque de Reporte:</label>
+                        <select id="report-type" onchange="renderReports()" style="background:var(--bg-main); color:var(--text-main); border:1px solid var(--border-color); padding:8px; border-radius:6px;">
+                            <option value="weekly">Bloque Semanal</option>
+                            <option value="monthly" selected>Bloque Mensual</option>
+                            <option value="annual">Bloque Anual</option>
+                        </select>
+                    </div>
+
+                    <div id="report-content" style="font-size: 13px; line-height: 1.6;">
+                        <!-- Report generated dynamically -->
+                    </div>
                 </div>
             </div>
 
         </div>
     </main>
 
-    <!-- Notification Toast -->
-    <div id="toast">¡Datos actualizados correctamente!</div>
+    <!-- MODALS FOR CREATING / EDITING -->
+
+    <!-- Modal Cotización -->
+    <div id="modal-quote" class="modal-bg">
+        <div class="modal-content">
+            <h3 id="quote-modal-title" style="margin-bottom: 15px;">Nueva Cotización / Recepción</h3>
+            <input type="hidden" id="q-id">
+            <div class="form-grid">
+                <div class="form-group"><label>Núm. Cotización</label><input type="text" id="q-num" required></div>
+                <div class="form-group"><label>Núm. Recepción Unidad</label><input type="text" id="q-rec-num" required></div>
+                <div class="form-group"><label>Fecha Recepción</label><input type="date" id="q-date" required></div>
+                <div class="form-group"><label>Nombre del Cliente</label><input type="text" id="q-client" required></div>
+                <div class="form-group"><label>Vehículo (Marca/Modelo)</label><input type="text" id="q-car" required></div>
+                <div class="form-group"><label>Monto Total ($)</label><input type="number" id="q-amount" step="0.01" required></div>
+                <div class="form-group"><label>Anticipo Inicial ($)</label><input type="number" id="q-advance" value="0" step="0.01"></div>
+                <div class="form-group"><label>Fecha Anticipo</label><input type="date" id="q-adv-date"></div>
+                <div class="form-group">
+                    <label>Estatus</label>
+                    <select id="q-status">
+                        <option value="En Proceso">En Proceso</option>
+                        <option value="Cotizado">Cotizado</option>
+                        <option value="Finalizado">Finalizado</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button class="btn" onclick="saveQuote()">Guardar Cotización</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Proveedor / Factura -->
+    <div id="modal-supplier" class="modal-bg">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Registrar Factura / Nota Proveedor</h3>
+            <input type="hidden" id="s-id">
+            <div class="form-grid">
+                <div class="form-group"><label>Proveedor</label><input type="text" id="s-name" required></div>
+                <div class="form-group"><label>Núm. Factura o Nota</label><input type="text" id="s-invoice" required></div>
+                <div class="form-group"><label>Fecha Factura/Nota</label><input type="date" id="s-date" required></div>
+                <div class="form-group"><label>Pieza / Insumo (Inventario)</label><input type="text" id="s-item" required></div>
+                <div class="form-group"><label>Cantidad</label><input type="number" id="s-qty" value="1" required></div>
+                <div class="form-group"><label>Monto Total ($)</label><input type="number" id="s-amount" step="0.01" required></div>
+                <div class="form-group"><label>Anticipo / Pagado ($)</label><input type="number" id="s-paid" value="0" step="0.01"></div>
+                <div class="form-group"><label>Fecha Pago / Anticipo</label><input type="date" id="s-pay-date"></div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button class="btn" onclick="saveSupplier()">Guardar y Descargar en Inventario</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Inventario Manual -->
+    <div id="modal-inventory" class="modal-bg">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Gestión de Inventario</h3>
+            <input type="hidden" id="i-id">
+            <div class="form-grid">
+                <div class="form-group"><label>Código / SKU</label><input type="text" id="inv-sku" required></div>
+                <div class="form-group"><label>Descripción de Pieza</label><input type="text" id="inv-desc" required></div>
+                <div class="form-group"><label>Proveedor Frecuente</label><input type="text" id="inv-prov"></div>
+                <div class="form-group"><label>Stock Actual</label><input type="number" id="inv-stock" value="0" required></div>
+                <div class="form-group"><label>Stock Mínimo (Alerta)</label><input type="number" id="inv-min" value="2" required></div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button class="btn" onclick="saveInventory()">Guardar Producto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nómina -->
+    <div id="modal-payroll" class="modal-bg">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Registrar Nómina y Anticipo</h3>
+            <input type="hidden" id="p-id">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Empleado</label>
+                    <select id="p-employee"></select>
+                </div>
+                <div class="form-group"><label>Período</label><input type="text" id="p-period" placeholder="Ej: Q1 Octubre 2026" required></div>
+                <div class="form-group"><label>Sueldo Base ($)</label><input type="number" id="p-base" step="0.01" required></div>
+                <div class="form-group"><label>Anticipo Descontado ($)</label><input type="number" id="p-advance" value="0" step="0.01"></div>
+                <div class="form-group">
+                    <label>Estatus Pago</label>
+                    <select id="p-status">
+                        <option value="Pagado">Pagado</option>
+                        <option value="Pendiente">Pendiente</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button class="btn" onclick="savePayroll()">Guardar Nómina</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Empleados -->
+    <div id="modal-employee" class="modal-bg">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Nuevo Empleado</h3>
+            <input type="hidden" id="e-id">
+            <div class="form-grid">
+                <div class="form-group"><label>Nombre Completo</label><input type="text" id="emp-name" required></div>
+                <div class="form-group"><label>Puesto</label><input type="text" id="emp-role" required></div>
+                <div class="form-group"><label>Teléfono</label><input type="text" id="emp-phone"></div>
+                <div class="form-group"><label>Días de Vacaciones Totales</label><input type="number" id="emp-vac-total" value="12"></div>
+                <div class="form-group"><label>Días Disfrutados</label><input type="number" id="emp-vac-used" value="0"></div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button class="btn" onclick="saveEmployee()">Guardar Empleado</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Entradas/Salidas -->
+    <div id="modal-cash" class="modal-bg">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px;">Registrar Movimiento de Caja</h3>
+            <input type="hidden" id="c-id">
+            <div class="form-grid">
+                <div class="form-group"><label>Fecha</label><input type="date" id="cs-date" required></div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="cs-type">
+                        <option value="Entrada">Entrada</option>
+                        <option value="Salida">Salida</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Concepto / Relación</label><input type="text" id="cs-concept" placeholder="Ej: Pago de cliente o Proveedor" required></div>
+                <div class="form-group">
+                    <label>Categoría</label>
+                    <select id="cs-cat">
+                        <option value="Cobro Cliente / Anticipo">Cobro Cliente / Anticipo</option>
+                        <option value="Pago Proveedor">Pago Proveedor</option>
+                        <option value="Nómina">Nómina</option>
+                        <option value="Otro Gasto">Otro Gasto</option>
+                        <option value="Otra Entrada">Otra Entrada</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Monto ($)</label><input type="number" id="cs-amount" step="0.01" required></div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
+                <button class="btn" onclick="saveCash()">Guardar Movimiento</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Operación guardada exitosamente</div>
 
     <script>
-        // Chart instances
-        let barChart, doughnutChart;
+        // Database state stored in localStorage
+        let db = JSON.parse(localStorage.getItem('icarlab_erp_db')) || {
+            quotes: [
+                { id: '1', num: 'ICAR-302', recNum: 'REC-01', date: '2026-10-01', client: 'Flensa QRO', car: 'Chevrolet Silverado 2024', amount: 16500, advance: 5000, advDate: '2026-10-01', status: 'En Proceso' }
+            ],
+            suppliers: [
+                { id: '1', name: 'Chemical Guys QRO', invoice: 'FAC-9921', date: '2026-10-01', item: 'Shampoo pH Neutro', qty: 5, amount: 2400, paid: 2400, payDate: '2026-10-01' }
+            ],
+            inventory: [
+                { id: '1', sku: 'QUIM-01', desc: 'Shampoo pH Neutro', prov: 'Chemical Guys QRO', stock: 5, min: 2 }
+            ],
+            employees: [
+                { id: '1', name: 'Carlos Mendoza', role: 'Técnico Detallador Sr.', phone: '4421234567', vacTotal: 12, vacUsed: 2 }
+            ],
+            payroll: [
+                { id: '1', employeeId: '1', period: 'Quincena 1 Octubre', base: 6200, advance: 500, status: 'Pagado' }
+            ],
+            cashflow: [
+                { id: '1', date: '2026-10-01', type: 'Entrada', concept: 'Anticipo Flensa QRO', cat: 'Cobro Cliente / Anticipo', amount: 5000 },
+                { id: '2', date: '2026-10-01', type: 'Salida', concept: 'FAC-9921 Chemical Guys', cat: 'Pago Proveedor', amount: 2400 }
+            ]
+        };
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initCharts();
-        });
+        function saveDB() {
+            localStorage.setItem('icarlab_erp_db', JSON.stringify(db));
+            showToast();
+            renderAll();
+        }
 
-        function initCharts() {
-            // Bar Chart
-            const ctxBar = document.getElementById('barChart').getContext('2d');
-            barChart = new Chart(ctxBar, {
+        function showToast() {
+            const t = document.getElementById('toast');
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2500);
+        }
+
+        // Navigation
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + viewName).classList.add('active');
+            document.getElementById('nav-' + viewName).classList.add('active');
+            renderAll();
+        }
+
+        let dashChartInstance = null;
+
+        function renderAll() {
+            renderDashboard();
+            renderQuotations();
+            renderSuppliers();
+            renderInventory();
+            renderPayroll();
+            renderEmployees();
+            renderCashflow();
+            renderReports();
+            populateEmployeeDropdown();
+        }
+
+        // 1. DASHBOARD
+        function renderDashboard() {
+            const period = document.getElementById('dash-period').value;
+            let totalIncome = db.quotes.reduce((acc, q) => acc + Number(q.advance), 0) + db.cashflow.filter(c => c.type === 'Entrada').reduce((acc, c) => acc + Number(c.amount), 0);
+            let totalExpenses = db.suppliers.reduce((acc, s) => acc + Number(s.paid), 0) + db.payroll.reduce((acc, p) => acc + (Number(p.base) - Number(p.advance)), 0) + db.cashflow.filter(c => c.type === 'Salida').reduce((acc, c) => acc + Number(c.amount), 0);
+            let profit = totalIncome - totalExpenses;
+
+            document.getElementById('d-income').innerText = '$' + totalIncome.toLocaleString('es-MX', {minimumFractionDigits:2});
+            document.getElementById('d-expenses').innerText = '$' + totalExpenses.toLocaleString('es-MX', {minimumFractionDigits:2});
+            document.getElementById('d-profit').innerText = '$' + profit.toLocaleString('es-MX', {minimumFractionDigits:2});
+            document.getElementById('d-units').innerText = db.quotes.filter(q => q.status === 'En Proceso').length;
+
+            // Stock alerts
+            let alertsHtml = '';
+            let lowStock = db.inventory.filter(i => i.stock <= i.min);
+            if(lowStock.length === 0) {
+                alertsHtml = '<div style="color:var(--success);">✓ Todos los niveles de stock estables.</div>';
+            } else {
+                lowStock.forEach(i => {
+                    alertsHtml += `<div style="color:var(--danger); margin-bottom:5px;">⚠️ ${i.desc} (Stock: ${i.stock}, Mín: ${i.min})</div>`;
+                });
+            }
+            document.getElementById('stock-alerts-list').innerHTML = alertsHtml;
+
+            // Chart
+            const ctx = document.getElementById('dashChart').getContext('2d');
+            if(dashChartInstance) dashChartInstance.destroy();
+            dashChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['Ingresos', 'Egresos', 'Utilidad'],
+                    labels: ['Ingresos Totales', 'Egresos Totales', 'Utilidad Neta'],
                     datasets: [{
-                        data: [16500, 12400.20, 4099.80],
+                        data: [totalIncome, totalExpenses, profit],
                         backgroundColor: ['#10b981', '#ef4444', '#f97316'],
                         borderRadius: 6
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
+                    responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
@@ -610,76 +664,492 @@
                     }
                 }
             });
+        }
 
-            // Doughnut Chart
-            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
-            doughnutChart = new Chart(ctxDoughnut, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Aprobadas', 'Pendientes', 'Rechazadas'],
-                    datasets: [{
-                        data: [70, 20, 10],
-                        backgroundColor: ['#10b981', '#3b82f6', '#ef4444'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } }
-                    },
-                    cutout: '70%'
-                }
+        // 2. QUOTATIONS
+        function renderQuotations() {
+            let html = '';
+            db.quotes.forEach(q => {
+                let balance = q.amount - q.advance;
+                html += `<tr>
+                    <td><b>${q.num}</b><br><span style="color:var(--text-muted); font-size:10px;">Recepción: ${q.recNum}</span></td>
+                    <td>${q.date}</td>
+                    <td>${q.client}</td>
+                    <td>${q.car}</td>
+                    <td>$${Number(q.amount).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td>Anticipo: $${Number(q.advance).toLocaleString('es-MX', {minimumFractionDigits:2})} <br><span style="font-size:10px; color:var(--text-muted);">${q.advDate || ''}</span></td>
+                    <td style="color: ${balance > 0 ? 'var(--warning)' : 'var(--success)'};">$${balance.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td><span class="badge ${q.status === 'En Proceso' ? 'badge-warning' : 'badge-success'}">${q.status}</span></td>
+                    <td class="no-print">
+                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editQuote('${q.id}')">Editar</button>
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteQuote('${q.id}')">Eliminar</button>
+                    </td>
+                </tr>`;
             });
+            document.querySelector('#quotes-table tbody').innerHTML = html;
         }
 
-        // Switch between sidebar views dynamically
-        function switchView(viewName) {
-            // Hide all views
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            // Remove active class from nav items
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-
-            // Show selected view
-            document.getElementById('view-' + viewName).classList.add('active');
-            // Highlight nav item
-            document.getElementById('nav-' + viewName).classList.add('active');
+        function openQuoteModal() {
+            document.getElementById('q-id').value = '';
+            document.getElementById('q-num').value = 'ICAR-' + Math.floor(100 + Math.random() * 900);
+            document.getElementById('q-rec-num').value = 'REC-' + Math.floor(10 + Math.random() * 90);
+            document.getElementById('q-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('q-client').value = '';
+            document.getElementById('q-car').value = '';
+            document.getElementById('q-amount').value = '';
+            document.getElementById('q-advance').value = '0';
+            document.getElementById('q-adv-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modal-quote').style.display = 'flex';
         }
 
-        // Refresh action
-        function refreshData() {
-            showToast('¡Sincronizado con éxito!');
+        function editQuote(id) {
+            let q = db.quotes.find(x => x.id === id);
+            if(!q) return;
+            document.getElementById('q-id').value = q.id;
+            document.getElementById('q-num').value = q.num;
+            document.getElementById('q-rec-num').value = q.recNum;
+            document.getElementById('q-date').value = q.date;
+            document.getElementById('q-client').value = q.client;
+            document.getElementById('q-car').value = q.car;
+            document.getElementById('q-amount').value = q.amount;
+            document.getElementById('q-advance').value = q.advance;
+            document.getElementById('q-adv-date').value = q.advDate;
+            document.getElementById('q-status').value = q.status;
+            document.getElementById('modal-quote').style.display = 'flex';
         }
 
-        let isMonthly = true;
-        function toggleMonth() {
-            isMonthly = !isMonthly;
-            document.getElementById('chart-period').innerText = isMonthly ? 'Mensual' : 'Anual';
-            if (isMonthly) {
-                barChart.data.datasets[0].data = [16500, 12400.20, 4099.80];
-                document.getElementById('val-income').innerText = '$16.500,00';
-                document.getElementById('val-expenses').innerText = '$12.400,20';
-                document.getElementById('val-profit').innerText = '$4.099,80';
+        function saveQuote() {
+            let id = document.getElementById('q-id').value;
+            let data = {
+                id: id || Date.now().toString(),
+                num: document.getElementById('q-num').value,
+                recNum: document.getElementById('q-rec-num').value,
+                date: document.getElementById('q-date').value,
+                client: document.getElementById('q-client').value,
+                car: document.getElementById('q-car').value,
+                amount: parseFloat(document.getElementById('q-amount').value) || 0,
+                advance: parseFloat(document.getElementById('q-advance').value) || 0,
+                advDate: document.getElementById('q-adv-date').value,
+                status: document.getElementById('q-status').value
+            };
+            if(id) {
+                let idx = db.quotes.findIndex(x => x.id === id);
+                db.quotes[idx] = data;
             } else {
-                barChart.data.datasets[0].data = [198000, 148800, 49200];
-                document.getElementById('val-income').innerText = '$198.000,00';
-                document.getElementById('val-expenses').innerText = '$148.800,00';
-                document.getElementById('val-profit').innerText = '$49.200,00';
+                db.quotes.push(data);
+                // Also log cash entry for advance if any
+                if(data.advance > 0) {
+                    db.cashflow.push({
+                        id: Date.now().toString(),
+                        date: data.advDate || data.date,
+                        type: 'Entrada',
+                        concept: 'Anticipo Cotización ' + data.num + ' (' + data.client + ')',
+                        cat: 'Cobro Cliente / Anticipo',
+                        amount: data.advance
+                    });
+                }
             }
-            barChart.update();
-            showToast('Vista cambiada correctamente');
+            closeModals();
+            saveDB();
         }
 
-        // Toast notification helper
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.style.display = 'block';
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 3000);
+        function deleteQuote(id) {
+            if(confirm('¿Eliminar esta cotización?')) {
+                db.quotes = db.quotes.filter(x => x.id !== id);
+                saveDB();
+            }
         }
+
+        // 3. SUPPLIERS & INVENTORY LINKING
+        function renderSuppliers() {
+            let html = '';
+            db.suppliers.forEach(s => {
+                let balance = s.amount - s.paid;
+                html += `<tr>
+                    <td><b>${s.name}</b></td>
+                    <td>${s.invoice}</td>
+                    <td>${s.date}</td>
+                    <td>${s.item}</td>
+                    <td>${s.qty}</td>
+                    <td>$${Number(s.amount).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td>$${Number(s.paid).toLocaleString('es-MX', {minimumFractionDigits:2})} <br><span style="font-size:10px; color:var(--text-muted);">${s.payDate || ''}</span></td>
+                    <td style="color: ${balance > 0 ? 'var(--warning)' : 'var(--success)'};">$${balance.toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td class="no-print">
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteSupplier('${s.id}')">Eliminar</button>
+                    </td>
+                </tr>`;
+            });
+            document.querySelector('#suppliers-table tbody').innerHTML = html;
+        }
+
+        function openSupplierModal() {
+            document.getElementById('s-id').value = '';
+            document.getElementById('s-name').value = '';
+            document.getElementById('s-invoice').value = 'FAC-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('s-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('s-item').value = '';
+            document.getElementById('s-qty').value = '1';
+            document.getElementById('s-amount').value = '';
+            document.getElementById('s-paid').value = '';
+            document.getElementById('s-pay-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('modal-supplier').style.display = 'flex';
+        }
+
+        function saveSupplier() {
+            let data = {
+                id: Date.now().toString(),
+                name: document.getElementById('s-name').value,
+                invoice: document.getElementById('s-invoice').value,
+                date: document.getElementById('s-date').value,
+                item: document.getElementById('s-item').value,
+                qty: parseInt(document.getElementById('s-qty').value) || 1,
+                amount: parseFloat(document.getElementById('s-amount').value) || 0,
+                paid: parseFloat(document.getElementById('s-paid').value) || 0,
+                payDate: document.getElementById('s-pay-date').value
+            };
+            db.suppliers.push(data);
+
+            // AUTOMATICALLY UPDATE INVENTORY (ADD STOCK)
+            let existingItem = db.inventory.find(i => i.desc.toLowerCase() === data.item.toLowerCase());
+            if(existingItem) {
+                existingItem.stock += data.qty;
+            } else {
+                db.inventory.push({
+                    id: Date.now().toString(),
+                    sku: 'SKU-' + Math.floor(100 + Math.random() * 900),
+                    desc: data.item,
+                    prov: data.name,
+                    stock: data.qty,
+                    min: 2
+                });
+            }
+
+            // Log cash exit for payment
+            if(data.paid > 0) {
+                db.cashflow.push({
+                    id: Date.now().toString() + 'c',
+                    date: data.payDate || data.date,
+                    type: 'Salida',
+                    concept: 'Pago Proveedor ' + data.name + ' (' + data.invoice + ')',
+                    cat: 'Pago Proveedor',
+                    amount: data.paid
+                });
+            }
+
+            closeModals();
+            saveDB();
+        }
+
+        function deleteSupplier(id) {
+            if(confirm('¿Eliminar este registro de proveedor?')) {
+                db.suppliers = db.suppliers.filter(x => x.id !== id);
+                saveDB();
+            }
+        }
+
+        // 4. INVENTORY
+        function renderInventory() {
+            let html = '';
+            db.inventory.forEach(i => {
+                let isLow = i.stock <= i.min;
+                html += `<tr>
+                    <td><b>${i.sku}</b></td>
+                    <td>${i.desc}</td>
+                    <td>${i.prov || 'General'}</td>
+                    <td><b>${i.stock}</b></td>
+                    <td>${i.min}</td>
+                    <td><span class="badge ${isLow ? 'badge-danger' : 'badge-success'}">${isLow ? 'Stock Bajo ⚠️' : 'Óptimo ✓'}</span></td>
+                    <td class="no-print">
+                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="editInventory('${i.id}')">Editar</button>
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteInventory('${i.id}')">Eliminar</button>
+                    </td>
+                </tr>`;
+            });
+            document.querySelector('#inventory-table tbody').innerHTML = html;
+        }
+
+        function openInventoryModal() {
+            document.getElementById('i-id').value = '';
+            document.getElementById('inv-sku').value = 'SKU-' + Math.floor(100 + Math.random() * 900);
+            document.getElementById('inv-desc').value = '';
+            document.getElementById('inv-prov').value = '';
+            document.getElementById('inv-stock').value = '10';
+            document.getElementById('inv-min').value = '2';
+            document.getElementById('modal-inventory').style.display = 'flex';
+        }
+
+        function editInventory(id) {
+            let item = db.inventory.find(x => x.id === id);
+            if(!item) return;
+            document.getElementById('i-id').value = item.id;
+            document.getElementById('inv-sku').value = item.sku;
+            document.getElementById('inv-desc').value = item.desc;
+            document.getElementById('inv-prov').value = item.prov;
+            document.getElementById('inv-stock').value = item.stock;
+            document.getElementById('inv-min').value = item.min;
+            document.getElementById('modal-inventory').style.display = 'flex';
+        }
+
+        function saveInventory() {
+            let id = document.getElementById('i-id').value;
+            let data = {
+                id: id || Date.now().toString(),
+                sku: document.getElementById('inv-sku').value,
+                desc: document.getElementById('inv-desc').value,
+                prov: document.getElementById('inv-prov').value,
+                stock: parseInt(document.getElementById('inv-stock').value) || 0,
+                min: parseInt(document.getElementById('inv-min').value) || 2
+            };
+            if(id) {
+                let idx = db.inventory.findIndex(x => x.id === id);
+                db.inventory[idx] = data;
+            } else {
+                db.inventory.push(data);
+            }
+            closeModals();
+            saveDB();
+        }
+
+        function deleteInventory(id) {
+            if(confirm('¿Eliminar producto del inventario?')) {
+                db.inventory = db.inventory.filter(x => x.id !== id);
+                saveDB();
+            }
+        }
+
+        // 5. PAYROLL & ADVANCES
+        function populateEmployeeDropdown() {
+            let select = document.getElementById('p-employee');
+            let html = '';
+            db.employees.forEach(e => {
+                html += `<option value="${e.id}">${e.name} (${e.role})</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function renderPayroll() {
+            let html = '';
+            db.payroll.forEach(p => {
+                let emp = db.employees.find(e => e.id === p.employeeId);
+                let empName = emp ? emp.name : 'Empleado Externo';
+                let net = p.base - p.advance;
+                html += `<tr>
+                    <td><b>${empName}</b></td>
+                    <td>${p.period}</td>
+                    <td>$${Number(p.base).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td style="color:var(--warning);">-$${Number(p.advance).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td><b>$${net.toLocaleString('es-MX', {minimumFractionDigits:2})}</b></td>
+                    <td><span class="badge ${p.status === 'Pagado' ? 'badge-success' : 'badge-warning'}">${p.status}</span></td>
+                    <td class="no-print">
+                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="printReceipt('${p.id}')">🖨️ Recibo</button>
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deletePayroll('${p.id}')">Eliminar</button>
+                    </td>
+                </tr>`;
+            });
+            document.querySelector('#payroll-table tbody').innerHTML = html;
+        }
+
+        function openPayrollModal() {
+            document.getElementById('p-id').value = '';
+            document.getElementById('p-period').value = 'Quincena Actual';
+            document.getElementById('p-base').value = '';
+            document.getElementById('p-advance').value = '0';
+            document.getElementById('modal-payroll').style.display = 'flex';
+        }
+
+        function savePayroll() {
+            let data = {
+                id: Date.now().toString(),
+                employeeId: document.getElementById('p-employee').value,
+                period: document.getElementById('p-period').value,
+                base: parseFloat(document.getElementById('p-base').value) || 0,
+                advance: parseFloat(document.getElementById('p-advance').value) || 0,
+                status: document.getElementById('p-status').value
+            };
+            db.payroll.push(data);
+
+            // Log cash exit
+            db.cashflow.push({
+                id: Date.now().toString() + 'p',
+                date: new Date().toISOString().split('T')[0],
+                type: 'Salida',
+                concept: 'Pago Nómina (' + data.period + ')',
+                cat: 'Nómina',
+                amount: (data.base - data.advance)
+            });
+
+            closeModals();
+            saveDB();
+        }
+
+        function deletePayroll(id) {
+            if(confirm('¿Eliminar registro de nómina?')) {
+                db.payroll = db.payroll.filter(x => x.id !== id);
+                saveDB();
+            }
+        }
+
+        function printReceipt(id) {
+            let p = db.payroll.find(x => x.id === id);
+            let emp = db.employees.find(e => e.id === p.employeeId);
+            let net = p.base - p.advance;
+            let win = window.open('', '', 'width=700,height=600');
+            win.document.write(`
+                <html><head><title>Recibo de Nómina - iCar Lab</title>
+                <style>body{font-family:sans-serif; padding:30px;} h2{color:#f97316;}</style></head>
+                <body>
+                    <h2>iCar Lab - Comprobante de Pago de Nómina</h2>
+                    <p><b>Fecha:</b> ${new Date().toLocaleDateString()}</p>
+                    <hr>
+                    <p><b>Empleado:</b> ${emp ? emp.name : 'N/A'}</p>
+                    <p><b>Puesto:</b> ${emp ? emp.role : 'N/A'}</p>
+                    <p><b>Período:</b> ${p.period}</p>
+                    <hr>
+                    <p>Sueldo Base: $${p.base.toFixed(2)}</p>
+                    <p>Anticipos / Descuentos: -$${p.advance.toFixed(2)}</p>
+                    <h3>Total Neto Pagado: $${net.toFixed(2)}</h3>
+                    <br><br><br>
+                    <p style="text-align:center;">____________________________________<br>Firma de Conformidad del Empleado</p>
+                </body></html>
+            `);
+            win.document.close();
+            win.print();
+        }
+
+        // 6. EMPLOYEES & VACATIONS
+        function renderEmployees() {
+            let html = '';
+            db.employees.forEach(e => {
+                let available = e.vacTotal - e.vacUsed;
+                html += `<tr>
+                    <td><b>${e.name}</b></td>
+                    <td>${e.role}</td>
+                    <td>${e.phone || 'N/A'}</td>
+                    <td>${e.vacTotal} días</td>
+                    <td>${e.vacUsed} días</td>
+                    <td><b style="color:var(--success);">${available} días</b></td>
+                    <td class="no-print">
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteEmployee('${e.id}')">Eliminar</button>
+                    </td>
+                </tr>`;
+            });
+            document.querySelector('#employees-table tbody').innerHTML = html;
+        }
+
+        function openEmployeeModal() {
+            document.getElementById('e-id').value = '';
+            document.getElementById('emp-name').value = '';
+            document.getElementById('emp-role').value = '';
+            document.getElementById('emp-phone').value = '';
+            document.getElementById('emp-vac-total').value = '12';
+            document.getElementById('emp-vac-used').value = '0';
+            document.getElementById('modal-employee').style.display = 'flex';
+        }
+
+        function saveEmployee() {
+            let data = {
+                id: Date.now().toString(),
+                name: document.getElementById('emp-name').value,
+                role: document.getElementById('emp-role').value,
+                phone: document.getElementById('emp-phone').value,
+                vacTotal: parseInt(document.getElementById('emp-vac-total').value) || 12,
+                vacUsed: parseInt(document.getElementById('emp-vac-used').value) || 0
+            };
+            db.employees.push(data);
+            closeModals();
+            saveDB();
+        }
+
+        function deleteEmployee(id) {
+            if(confirm('¿Eliminar empleado?')) {
+                db.employees = db.employees.filter(x => x.id !== id);
+                saveDB();
+            }
+        }
+
+        // 7. CASHFLOW (ENTRADAS Y SALIDAS)
+        function renderCashflow() {
+            let html = '';
+            db.cashflow.forEach(c => {
+                html += `<tr>
+                    <td>${c.date}</td>
+                    <td><span class="badge ${c.type === 'Entrada' ? 'badge-success' : 'badge-danger'}">${c.type}</span></td>
+                    <td>${c.concept}</td>
+                    <td>${c.cat}</td>
+                    <td style="font-weight:bold; color:${c.type === 'Entrada' ? 'var(--success)' : 'var(--danger)'};">$${Number(c.amount).toLocaleString('es-MX', {minimumFractionDigits:2})}</td>
+                    <td class="no-print">
+                        <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deleteCash('${c.id}')">Eliminar</button>
+                    </td>
+                </tr>`;
+            });
+            document.querySelector('#cash-table tbody').innerHTML = html;
+        }
+
+        function openCashModal() {
+            document.getElementById('cs-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('cs-concept').value = '';
+            document.getElementById('cs-amount').value = '';
+            document.getElementById('modal-cash').style.display = 'flex';
+        }
+
+        function saveCash() {
+            let data = {
+                id: Date.now().toString(),
+                date: document.getElementById('cs-date').value,
+                type: document.getElementById('cs-type').value,
+                concept: document.getElementById('cs-concept').value,
+                cat: document.getElementById('cs-cat').value,
+                amount: parseFloat(document.getElementById('cs-amount').value) || 0
+            };
+            db.cashflow.push(data);
+            closeModals();
+            saveDB();
+        }
+
+        function deleteCash(id) {
+            if(confirm('¿Eliminar movimiento de caja?')) {
+                db.cashflow = db.cashflow.filter(x => x.id !== id);
+                saveDB();
+            }
+        }
+
+        // 8. REPORTS
+        function renderReports() {
+            let type = document.getElementById('report-type').value;
+            let title = type === 'weekly' ? 'Reporte Bloque Semanal' : (type === 'monthly' ? 'Reporte Bloque Mensual' : 'Reporte Bloque Anual');
+            
+            let totalIn = db.quotes.reduce((acc, q) => acc + Number(q.advance), 0) + db.cashflow.filter(c => c.type === 'Entrada').reduce((acc, c) => acc + Number(c.amount), 0);
+            let totalOut = db.suppliers.reduce((acc, s) => acc + Number(s.paid), 0) + db.payroll.reduce((acc, p) => acc + (Number(p.base) - Number(p.advance)), 0) + db.cashflow.filter(c => c.type === 'Salida').reduce((acc, c) => acc + Number(c.amount), 0);
+            let net = totalIn - totalOut;
+
+            let html = `
+                <h3 style="color:var(--accent-orange); margin-bottom:15px;">iCar Lab - ${title}</h3>
+                <p><b>Fecha de emisión:</b> ${new Date().toLocaleDateString()}</p>
+                <hr style="border-color:var(--border-color); margin: 15px 0;">
+                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:20px;">
+                    <div class="metric-card"><div class="title">Total Entradas</div><div class="value" style="color:var(--success);">$${totalIn.toFixed(2)}</div></div>
+                    <div class="metric-card"><div class="title">Total Salidas</div><div class="value" style="color:var(--danger);">$${totalOut.toFixed(2)}</div></div>
+                    <div class="metric-card"><div class="title">Utilidad del Bloque</div><div class="value">$${net.toFixed(2)}</div></div>
+                </div>
+                <h4>Detalle Operativo:</h4>
+                <ul>
+                    <li>Cotizaciones / Unidades activas: ${db.quotes.length}</li>
+                    <li>Proveedores y facturas registradas: ${db.suppliers.length}</li>
+                    <li>Productos en inventario: ${db.inventory.length}</li>
+                    <li>Empleados registrados: ${db.employees.length}</li>
+                </ul>
+            `;
+            document.getElementById('report-content').innerHTML = html;
+        }
+
+        // Helpers
+        function closeModals() {
+            document.querySelectorAll('.modal-bg').forEach(m => m.style.display = 'none');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
     </script>
 </body>
 </html>
