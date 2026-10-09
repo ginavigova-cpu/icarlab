@@ -145,7 +145,7 @@
                 <div class="section-header">
                     <div>
                         <h2>Dashboard General</h2>
-                        <p>Resumen financiero y operativo en tiempo real por bloques temporales.</p>
+                        <p>Resumen financiero y operativo filtrado por bloques temporales.</p>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <select id="dash-period" onchange="renderDashboard()" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:6px; border-radius:6px; font-size:12px;">
@@ -159,15 +159,15 @@
 
                 <div class="metrics-grid">
                     <div class="metric-card">
-                        <div class="title">Ingresos Totales (Clientes)</div>
+                        <div class="title">Ingresos Totales (Bloque)</div>
                         <div class="value" id="d-income">$0.00</div>
                     </div>
                     <div class="metric-card">
-                        <div class="title">Egresos Totales (Proveedores + Nómina + Gastos)</div>
+                        <div class="title">Egresos Totales (Bloque)</div>
                         <div class="value" id="d-expenses">$0.00</div>
                     </div>
                     <div class="metric-card">
-                        <div class="title">Utilidad Neta</div>
+                        <div class="title">Utilidad Neta (Bloque)</div>
                         <div class="value" id="d-profit" style="color: var(--success);">$0.00</div>
                     </div>
                     <div class="metric-card">
@@ -178,7 +178,7 @@
 
                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
                     <div class="card">
-                        <div style="font-weight: bold; margin-bottom: 15px; font-size: 13px;">📊 Gráfica Financiera General</div>
+                        <div style="font-weight: bold; margin-bottom: 15px; font-size: 13px;" id="chart-title">📊 Gráfica Financiera (Mensual)</div>
                         <div style="height: 250px; position:relative;"><canvas id="dashChart"></canvas></div>
                     </div>
                     <div class="card">
@@ -208,7 +208,7 @@
                                     <th>Cliente</th>
                                     <th>Vehículo</th>
                                     <th>Monto Total</th>
-                                    <th>Anticipos & Historial de Pagos</th>
+                                    <th>Anticipos & Historial</th>
                                     <th>Saldo Pendiente</th>
                                     <th>Estatus</th>
                                     <th class="no-print">Acciones</th>
@@ -241,7 +241,7 @@
                                     <th>Pieza / Insumo</th>
                                     <th>Cant.</th>
                                     <th>Monto Total</th>
-                                    <th>Historial de Pagos / Abonos</th>
+                                    <th>Historial de Pagos</th>
                                     <th>Saldo Proveedor</th>
                                     <th class="no-print">Acciones</th>
                                 </tr>
@@ -284,12 +284,12 @@
             <div id="view-payroll" class="view-section">
                 <div class="section-header">
                     <div>
-                        <h2>Nómina & Préstamos / Anticipos</h2>
-                        <p>Cálculo de pagos, descuento automático de préstamos y recibos por empleado.</p>
+                        <h2>Nómina Semanal & Anticipos</h2>
+                        <p>Cálculo de pagos semanales por calendario, descuento de préstamos y recibos.</p>
                     </div>
                     <div style="display:flex; gap:10px;">
                         <button class="btn btn-secondary no-print" onclick="window.print()">🖨️ Imprimir Recibos</button>
-                        <button class="btn" onclick="openPayrollModal()">+ Registrar Nómina</button>
+                        <button class="btn" onclick="openPayrollModal()">+ Registrar Nómina Semanal</button>
                     </div>
                 </div>
 
@@ -298,10 +298,10 @@
                         <thead>
                             <tr>
                                 <th>Empleado</th>
-                                <th>Período</th>
+                                <th>Semana / Período</th>
                                 <th>Sueldo Base</th>
-                                <th>Préstamos / Anticipos Descontados</th>
-                                <th>Total Neto a Pagar</th>
+                                <th>Préstamos Descontados</th>
+                                <th>Total Neto Semanal</th>
                                 <th>Estatus</th>
                                 <th class="no-print">Acciones</th>
                             </tr>
@@ -343,7 +343,7 @@
                 <div class="section-header">
                     <div>
                         <h2>Entradas y Salidas de Caja</h2>
-                        <p>Registro de flujos con categorías detalladas (Luz, Agua, Nómina, Insumos, etc.).</p>
+                        <p>Registro de flujos con categorías libres y personalizables.</p>
                     </div>
                     <button class="btn" onclick="openCashModal()">+ Registrar Movimiento</button>
                 </div>
@@ -443,7 +443,7 @@
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                 <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
-                <button class="btn" onclick="saveSupplier()">Guardar y Actualizar Inventario</button>
+                <button class="btn" onclick="saveSupplier()">Guardar Proveedor</button>
             </div>
         </div>
     </div>
@@ -467,18 +467,18 @@
         </div>
     </div>
 
-    <!-- Modal Nómina -->
+    <!-- Modal Nómina Semanal -->
     <div id="modal-payroll" class="modal-bg">
         <div class="modal-content">
-            <h3 style="margin-bottom: 15px;">Registrar Nómina</h3>
+            <h3 style="margin-bottom: 15px;">Registrar Nómina Semanal</h3>
             <input type="hidden" id="p-id">
             <div class="form-grid">
                 <div class="form-group">
                     <label>Empleado</label>
                     <select id="p-employee"></select>
                 </div>
-                <div class="form-group"><label>Período</label><input type="text" id="p-period" placeholder="Ej: Q1 Octubre 2026" required></div>
-                <div class="form-group"><label>Sueldo Base ($)</label><input type="number" id="p-base" step="0.01" required></div>
+                <div class="form-group"><label>Semana / Período</label><input type="text" id="p-period" placeholder="Ej: Semana 40 (Oct 2026)" required></div>
+                <div class="form-group"><label>Sueldo Base Semanal ($)</label><input type="number" id="p-base" step="0.01" required></div>
                 <div class="form-group"><label>Descontar Préstamo ($)</label><input type="number" id="p-advance" value="0" step="0.01"></div>
                 <div class="form-group">
                     <label>Estatus Pago</label>
@@ -529,20 +529,19 @@
                         <option value="Salida">Salida</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Concepto / Relación</label><input type="text" id="cs-concept" placeholder="Ej: Abono de cliente o Recibo luz" required></div>
+                <div class="form-group"><label>Concepto / Relación</label><input type="text" id="cs-concept" placeholder="Ej: Venta servicio o Luz CFE" required></div>
                 <div class="form-group">
-                    <label>Categoría</label>
-                    <select id="cs-cat">
-                        <option value="Cobro Cliente / Anticipo">Cobro Cliente / Anticipo</option>
-                        <option value="Pago Proveedor">Pago Proveedor</option>
-                        <option value="Nómina">Nómina</option>
-                        <option value="Luz">Luz (CFE)</option>
-                        <option value="Agua">Agua</option>
-                        <option value="Renta">Renta Local</option>
-                        <option value="Mantenimiento">Mantenimiento</option>
-                        <option value="Otro Gasto">Otro Gasto</option>
-                        <option value="Otra Entrada">Otra Entrada</option>
-                    </select>
+                    <label>Categoría (Escribe o Selecciona)</label>
+                    <input type="text" id="cs-cat" list="cat-list" placeholder="Ej: Luz, Agua, Nómina, Renta..." required>
+                    <datalist id="cat-list">
+                        <option value="Cobro Cliente / Anticipo">
+                        <option value="Pago Proveedor">
+                        <option value="Nómina">
+                        <option value="Luz (CFE)">
+                        <option value="Agua">
+                        <option value="Renta Local">
+                        <option value="Mantenimiento">
+                    </datalist>
                 </div>
                 <div class="form-group"><label>Monto ($)</label><input type="number" id="cs-amount" step="0.01" required></div>
             </div>
@@ -570,7 +569,7 @@
                 { id: '1', name: 'Carlos Mendoza', role: 'Técnico Detallador Sr.', phone: '4421234567', vacTotal: 12, vacUsed: 2, loans: [] }
             ],
             payroll: [
-                { id: '1', employeeId: '1', period: 'Quincena 1 Octubre', base: 6200, advance: 500, status: 'Pagado' }
+                { id: '1', employeeId: '1', period: 'Semana 40 (Oct 2026)', base: 3100, advance: 200, status: 'Pagado' }
             ],
             cash: [
                 { id: '1', date: '2026-10-01', type: 'Entrada', concept: 'Anticipo Flensa QRO', cat: 'Cobro Cliente / Anticipo', amount: 5000 },
@@ -602,7 +601,6 @@
             document.querySelectorAll('.modal-bg').forEach(m => m.style.display = 'none');
         }
 
-        // --- RENDER ALL ---
         function renderAll() {
             renderQuotes();
             renderSuppliers();
@@ -661,6 +659,7 @@
                 let q = db.quotes.find(x => x.id === id);
                 q.num = num; q.recNum = recNum; q.date = date; q.client = client; q.car = car; q.amount = amount; q.status = status;
                 if(adv > 0) {
+                    if(!q.payments) q.payments = [];
                     q.payments.push({date: advDate, amount: adv});
                     db.cash.push({id: Date.now().toString(), date: advDate, type: 'Entrada', concept: `Abono Cotización ${num} - ${client}`, cat: 'Cobro Cliente / Anticipo', amount: adv});
                 }
@@ -711,7 +710,7 @@
             });
         }
 
-        // --- SUPPLIERS & INVENTORY AUTOMATION ---
+        // --- SUPPLIERS & INVENTORY ---
         function openSupplierModal(id = null) {
             document.getElementById('s-id').value = '';
             document.getElementById('s-name').value = '';
@@ -771,6 +770,7 @@
                 let s = db.suppliers.find(x => x.id === id);
                 s.name = name; s.invoice = invoice; s.date = date; s.item = item; s.qty = qty; s.amount = amount;
                 if(paid > 0) {
+                    if(!s.payments) s.payments = [];
                     s.payments.push({date: payDate, amount: paid});
                     db.cash.push({id: Date.now().toString(), date: payDate, type: 'Salida', concept: `Pago factura ${invoice} - ${name}`, cat: 'Pago Proveedor', amount: paid});
                 }
@@ -987,10 +987,10 @@
             });
         }
 
-        // --- PAYROLL ---
+        // --- PAYROLL (WEEKLY) ---
         function openPayrollModal(id = null) {
             document.getElementById('p-id').value = '';
-            document.getElementById('p-period').value = 'Quincena Octubre';
+            document.getElementById('p-period').value = 'Semana ' + Math.floor(1 + Math.random()*52) + ' (2026)';
             document.getElementById('p-base').value = '';
             document.getElementById('p-advance').value = '0';
             document.getElementById('p-status').value = 'Pagado';
@@ -1025,7 +1025,7 @@
                 p.employeeId = employeeId; p.period = period; p.base = base; p.advance = advance; p.status = status;
             } else {
                 db.payroll.push({ id: Date.now().toString(), employeeId, period, base, advance, status });
-                db.cash.push({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], type: 'Salida', concept: `Nómina período ${period}`, cat: 'Nómina', amount: net });
+                db.cash.push({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], type: 'Salida', concept: `Nómina Semanal ${period}`, cat: 'Nómina', amount: net });
             }
             closeModals();
             saveDB();
@@ -1095,7 +1095,7 @@
             let cat = document.getElementById('cs-cat').value;
             let amount = parseFloat(document.getElementById('cs-amount').value) || 0;
 
-            if(!concept || !amount) { alert('Complete los campos'); return; }
+            if(!concept || !cat || !amount) { alert('Complete los campos'); return; }
 
             if(id) {
                 let c = db.cash.find(x => x.id === id);
@@ -1138,11 +1138,30 @@
         // --- DASHBOARD & REPORTS (FILTERED BY BLOCKS) ---
         let myChart = null;
 
+        function filterByPeriod(items, period) {
+            let now = new Date();
+            return items.filter(x => {
+                if(!x.date) return true;
+                let itemDate = new Date(x.date);
+                if(period === 'weekly') {
+                    let diffTime = Math.abs(now - itemDate);
+                    let diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    return diffDays <= 7;
+                } else if(period === 'monthly') {
+                    return itemDate.getMonth() === now.getMonth() && itemDate.getFullYear() === now.getFullYear();
+                } else if(period === 'annual') {
+                    return itemDate.getFullYear() === now.getFullYear();
+                }
+                return true;
+            });
+        }
+
         function renderDashboard() {
             let period = document.getElementById('dash-period').value;
+            let filteredCash = filterByPeriod(db.cash, period);
             
-            let totalIncome = db.cash.filter(x => x.type === 'Entrada').reduce((sum, x) => sum + x.amount, 0);
-            let totalExpenses = db.cash.filter(x => x.type === 'Salida').reduce((sum, x) => sum + x.amount, 0);
+            let totalIncome = filteredCash.filter(x => x.type === 'Entrada').reduce((sum, x) => sum + x.amount, 0);
+            let totalExpenses = filteredCash.filter(x => x.type === 'Salida').reduce((sum, x) => sum + x.amount, 0);
             let netProfit = totalIncome - totalExpenses;
             let activeUnits = db.quotes.filter(x => x.status !== 'Finalizado').length;
 
@@ -1152,6 +1171,7 @@
             profEl.innerText = `$${netProfit.toFixed(2)}`;
             profEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
             document.getElementById('d-units').innerText = activeUnits;
+            document.getElementById('chart-title').innerText = `📊 Gráfica Financiera (${period.toUpperCase()})`;
 
             // Chart
             let ctx = document.getElementById('dashChart').getContext('2d');
@@ -1172,8 +1192,9 @@
 
         function renderReports() {
             let rType = document.getElementById('report-type').value;
-            let totalIncome = db.cash.filter(x => x.type === 'Entrada').reduce((sum, x) => sum + x.amount, 0);
-            let totalExpenses = db.cash.filter(x => x.type === 'Salida').reduce((sum, x) => sum + x.amount, 0);
+            let filteredCash = filterByPeriod(db.cash, rType);
+            let totalIncome = filteredCash.filter(x => x.type === 'Entrada').reduce((sum, x) => sum + x.amount, 0);
+            let totalExpenses = filteredCash.filter(x => x.type === 'Salida').reduce((sum, x) => sum + x.amount, 0);
             let netProfit = totalIncome - totalExpenses;
 
             let html = `
@@ -1184,12 +1205,9 @@
                 <p><b>2. Total de Egresos (Proveedores, Nómina, Servicios):</b> $${totalExpenses.toFixed(2)}</p>
                 <p><b>3. Utilidad Neta del Bloque:</b> <span style="color:${netProfit>=0?'var(--success)':'var(--danger)'}; font-weight:bold;">$${netProfit.toFixed(2)}</span></p>
                 <br>
-                <h4>Resumen Operativo:</h4>
+                <h4>Movimientos Registrados en este Bloque (${filteredCash.length}):</h4>
                 <ul>
-                    <li>Cotizaciones registradas: ${db.quotes.length}</li>
-                    <li>Facturas de Proveedores: ${db.suppliers.length}</li>
-                    <li>Artículos en inventario: ${db.inventory.length}</li>
-                    <li>Empleados activos: ${db.employees.length}</li>
+                    ${filteredCash.map(c => `<li>${c.date} - [${c.type}]${c.concept} (${c.cat}):$${c.amount.toFixed(2)}</li>`).join('') || '<li>Sin movimientos en este período.</li>'}
                 </ul>
             `;
             document.getElementById('report-content').innerHTML = html;
