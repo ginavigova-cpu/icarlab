@@ -22,7 +22,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar */
         aside {
             width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color);
             display: flex; flex-direction: column; justify-content: space-between; padding: 15px; overflow-y: auto;
@@ -39,7 +38,6 @@
         }
         .nav-item.active button, .nav-item button:hover { background-color: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
 
-        /* Main Area */
         main { flex-grow: 1; display: flex; flex-direction: column; overflow-y: auto; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; border-bottom: 1px solid var(--border-color); background-color: var(--bg-main); }
         .branch-badge { background: rgba(16, 185, 129, 0.1); color: var(--success); padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; border: 1px solid rgba(16, 185, 129, 0.2); }
@@ -48,7 +46,6 @@
         .user-info .name { font-size: 12px; font-weight: bold; }
         .user-info .role { font-size: 10px; color: var(--text-muted); }
 
-        /* Content Views */
         .content-body { padding: 25px; }
         .view-section { display: none; }
         .view-section.active { display: block; }
@@ -57,14 +54,13 @@
         .section-header h2 { font-size: 20px; }
         .section-header p { color: var(--text-muted); font-size: 12px; }
 
-        /* Buttons */
         .btn { background: var(--accent-orange); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; }
         .btn:hover { opacity: 0.9; }
         .btn-secondary { background: var(--bg-card); border: 1px solid var(--border-color); color: var(--text-main); }
-        .btn-danger { background: var(--danger); }
+        .btn-danger { background: var(--danger); padding: 5px 10px; font-size: 11px; }
+        .btn-warning { background: var(--warning); padding: 5px 10px; font-size: 11px; color: #000; }
         .btn-success { background: var(--success); }
 
-        /* Cards & Grids */
         .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
         .metric-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; position: relative; }
         .metric-card .title { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
@@ -72,7 +68,6 @@
 
         .card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
         
-        /* Tables */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
         th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
         th { color: var(--text-muted); font-weight: 500; background: rgba(255,255,255,0.02); }
@@ -81,19 +76,16 @@
         .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
         .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
 
-        /* Forms & Modals */
         .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 15px; }
         .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group label { font-size: 11px; color: var(--text-muted); }
         .form-group input, .form-group select, .form-group textarea { background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 8px; border-radius: 6px; font-size: 12px; }
         
         .modal-bg { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 999; }
-        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); width: 650px; max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 12px; }
+        .modal-content { background: var(--bg-card); border: 1px solid var(--border-color); width: 680px; max-height: 90vh; overflow-y: auto; padding: 25px; border-radius: 12px; }
 
-        /* Toast */
         #toast { position: fixed; bottom: 20px; right: 20px; background: var(--success); color: white; padding: 10px 20px; border-radius: 6px; font-size: 12px; display: none; z-index: 1000; }
         
-        /* Print styles */
         @media print {
             aside, header, .btn, .no-print { display: none !important; }
             body, main, .content-body { background: white !important; color: black !important; height: auto !important; overflow: visible !important; }
@@ -153,7 +145,7 @@
                 <div class="section-header">
                     <div>
                         <h2>Dashboard General</h2>
-                        <p>Resumen financiero y operativo en tiempo real.</p>
+                        <p>Resumen financiero y operativo en tiempo real por bloques temporales.</p>
                     </div>
                     <div style="display: flex; gap: 10px;">
                         <select id="dash-period" onchange="renderDashboard()" style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:6px; border-radius:6px; font-size:12px;">
@@ -171,7 +163,7 @@
                         <div class="value" id="d-income">$0.00</div>
                     </div>
                     <div class="metric-card">
-                        <div class="title">Egresos Totales (Proveedores + Nómina)</div>
+                        <div class="title">Egresos Totales (Proveedores + Nómina + Gastos)</div>
                         <div class="value" id="d-expenses">$0.00</div>
                     </div>
                     <div class="metric-card">
@@ -179,7 +171,7 @@
                         <div class="value" id="d-profit" style="color: var(--success);">$0.00</div>
                     </div>
                     <div class="metric-card">
-                        <div class="title">Vehículos / Unidades Activas</div>
+                        <div class="title">Unidades / Servicios Activos</div>
                         <div class="value" id="d-units">0</div>
                     </div>
                 </div>
@@ -201,7 +193,7 @@
                 <div class="section-header">
                     <div>
                         <h2>Cotizaciones & Recepción de Unidades</h2>
-                        <p>Control de presupuestos, anticipos, pagos y fechas de recepción.</p>
+                        <p>Control de presupuestos, historial de anticipos/pagos y fechas de recepción.</p>
                     </div>
                     <button class="btn" onclick="openQuoteModal()">+ Nueva Cotización / Recepción</button>
                 </div>
@@ -216,7 +208,7 @@
                                     <th>Cliente</th>
                                     <th>Vehículo</th>
                                     <th>Monto Total</th>
-                                    <th>Anticipos & Pagos</th>
+                                    <th>Anticipos & Historial de Pagos</th>
                                     <th>Saldo Pendiente</th>
                                     <th>Estatus</th>
                                     <th class="no-print">Acciones</th>
@@ -233,7 +225,7 @@
                 <div class="section-header">
                     <div>
                         <h2>Proveedores & Facturas/Notas</h2>
-                        <p>Control de compras, facturas, anticipos y piezas ingresadas (que alimentan el inventario).</p>
+                        <p>Control de compras, notas, historial de pagos y llenado automático de inventario.</p>
                     </div>
                     <button class="btn" onclick="openSupplierModal()">+ Registrar Factura / Nota</button>
                 </div>
@@ -249,7 +241,7 @@
                                     <th>Pieza / Insumo</th>
                                     <th>Cant.</th>
                                     <th>Monto Total</th>
-                                    <th>Anticipo / Pagado</th>
+                                    <th>Historial de Pagos / Abonos</th>
                                     <th>Saldo Proveedor</th>
                                     <th class="no-print">Acciones</th>
                                 </tr>
@@ -292,12 +284,12 @@
             <div id="view-payroll" class="view-section">
                 <div class="section-header">
                     <div>
-                        <h2>Nómina & Anticipos a Empleados</h2>
-                        <p>Cálculo de pagos, anticipos aplicados y recibos imprimibles por empleado.</p>
+                        <h2>Nómina & Préstamos / Anticipos</h2>
+                        <p>Cálculo de pagos, descuento automático de préstamos y recibos por empleado.</p>
                     </div>
                     <div style="display:flex; gap:10px;">
-                        <button class="btn btn-secondary no-print" onclick="window.print()">🖨️ Imprimir Todos los Recibos</button>
-                        <button class="btn" onclick="openPayrollModal()">+ Registrar Nómina / Anticipo</button>
+                        <button class="btn btn-secondary no-print" onclick="window.print()">🖨️ Imprimir Recibos</button>
+                        <button class="btn" onclick="openPayrollModal()">+ Registrar Nómina</button>
                     </div>
                 </div>
 
@@ -308,7 +300,7 @@
                                 <th>Empleado</th>
                                 <th>Período</th>
                                 <th>Sueldo Base</th>
-                                <th>Anticipos Descontados</th>
+                                <th>Préstamos / Anticipos Descontados</th>
                                 <th>Total Neto a Pagar</th>
                                 <th>Estatus</th>
                                 <th class="no-print">Acciones</th>
@@ -323,8 +315,8 @@
             <div id="view-employees" class="view-section">
                 <div class="section-header">
                     <div>
-                        <h2>Empleados & Control de Vacaciones</h2>
-                        <p>Directorio de personal y días de descanso acumulados.</p>
+                        <h2>Empleados, Préstamos & Vacaciones</h2>
+                        <p>Directorio de personal, control de préstamos activos y días de descanso.</p>
                     </div>
                     <button class="btn" onclick="openEmployeeModal()">+ Nuevo Empleado</button>
                 </div>
@@ -336,9 +328,8 @@
                                 <th>Nombre Completo</th>
                                 <th>Puesto</th>
                                 <th>Teléfono</th>
-                                <th>Días Vacaciones Totales</th>
-                                <th>Días Disfrutados</th>
-                                <th>Días Disponibles</th>
+                                <th>Préstamos Activos / Historial</th>
+                                <th>Vacaciones (Disponibles / Totales)</th>
                                 <th class="no-print">Acciones</th>
                             </tr>
                         </thead>
@@ -352,7 +343,7 @@
                 <div class="section-header">
                     <div>
                         <h2>Entradas y Salidas de Caja</h2>
-                        <p>Registro de flujos relacionados con clientes, proveedores, gastos y otros.</p>
+                        <p>Registro de flujos con categorías detalladas (Luz, Agua, Nómina, Insumos, etc.).</p>
                     </div>
                     <button class="btn" onclick="openCashModal()">+ Registrar Movimiento</button>
                 </div>
@@ -403,12 +394,12 @@
         </div>
     </main>
 
-    <!-- MODALS FOR CREATING / EDITING -->
+    <!-- MODALS FOR CRUD -->
 
     <!-- Modal Cotización -->
     <div id="modal-quote" class="modal-bg">
         <div class="modal-content">
-            <h3 id="quote-modal-title" style="margin-bottom: 15px;">Nueva Cotización / Recepción</h3>
+            <h3 id="quote-modal-title" style="margin-bottom: 15px;">Cotización y Recepción</h3>
             <input type="hidden" id="q-id">
             <div class="form-grid">
                 <div class="form-group"><label>Núm. Cotización</label><input type="text" id="q-num" required></div>
@@ -417,8 +408,8 @@
                 <div class="form-group"><label>Nombre del Cliente</label><input type="text" id="q-client" required></div>
                 <div class="form-group"><label>Vehículo (Marca/Modelo)</label><input type="text" id="q-car" required></div>
                 <div class="form-group"><label>Monto Total ($)</label><input type="number" id="q-amount" step="0.01" required></div>
-                <div class="form-group"><label>Anticipo Inicial ($)</label><input type="number" id="q-advance" value="0" step="0.01"></div>
-                <div class="form-group"><label>Fecha Anticipo</label><input type="date" id="q-adv-date"></div>
+                <div class="form-group"><label>Abono / Anticipo ($)</label><input type="number" id="q-advance" value="0" step="0.01"></div>
+                <div class="form-group"><label>Fecha Abono</label><input type="date" id="q-adv-date"></div>
                 <div class="form-group">
                     <label>Estatus</label>
                     <select id="q-status">
@@ -447,12 +438,12 @@
                 <div class="form-group"><label>Pieza / Insumo (Inventario)</label><input type="text" id="s-item" required></div>
                 <div class="form-group"><label>Cantidad</label><input type="number" id="s-qty" value="1" required></div>
                 <div class="form-group"><label>Monto Total ($)</label><input type="number" id="s-amount" step="0.01" required></div>
-                <div class="form-group"><label>Anticipo / Pagado ($)</label><input type="number" id="s-paid" value="0" step="0.01"></div>
-                <div class="form-group"><label>Fecha Pago / Anticipo</label><input type="date" id="s-pay-date"></div>
+                <div class="form-group"><label>Abono / Pagado ($)</label><input type="number" id="s-paid" value="0" step="0.01"></div>
+                <div class="form-group"><label>Fecha Pago / Abono</label><input type="date" id="s-pay-date"></div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                 <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
-                <button class="btn" onclick="saveSupplier()">Guardar y Descargar en Inventario</button>
+                <button class="btn" onclick="saveSupplier()">Guardar y Actualizar Inventario</button>
             </div>
         </div>
     </div>
@@ -479,7 +470,7 @@
     <!-- Modal Nómina -->
     <div id="modal-payroll" class="modal-bg">
         <div class="modal-content">
-            <h3 style="margin-bottom: 15px;">Registrar Nómina y Anticipo</h3>
+            <h3 style="margin-bottom: 15px;">Registrar Nómina</h3>
             <input type="hidden" id="p-id">
             <div class="form-grid">
                 <div class="form-group">
@@ -488,7 +479,7 @@
                 </div>
                 <div class="form-group"><label>Período</label><input type="text" id="p-period" placeholder="Ej: Q1 Octubre 2026" required></div>
                 <div class="form-group"><label>Sueldo Base ($)</label><input type="number" id="p-base" step="0.01" required></div>
-                <div class="form-group"><label>Anticipo Descontado ($)</label><input type="number" id="p-advance" value="0" step="0.01"></div>
+                <div class="form-group"><label>Descontar Préstamo ($)</label><input type="number" id="p-advance" value="0" step="0.01"></div>
                 <div class="form-group">
                     <label>Estatus Pago</label>
                     <select id="p-status">
@@ -504,17 +495,18 @@
         </div>
     </div>
 
-    <!-- Modal Empleados -->
+    <!-- Modal Empleados y Préstamos -->
     <div id="modal-employee" class="modal-bg">
         <div class="modal-content">
-            <h3 style="margin-bottom: 15px;">Nuevo Empleado</h3>
+            <h3 style="margin-bottom: 15px;">Gestión de Empleados y Préstamos</h3>
             <input type="hidden" id="e-id">
             <div class="form-grid">
                 <div class="form-group"><label>Nombre Completo</label><input type="text" id="emp-name" required></div>
                 <div class="form-group"><label>Puesto</label><input type="text" id="emp-role" required></div>
                 <div class="form-group"><label>Teléfono</label><input type="text" id="emp-phone"></div>
-                <div class="form-group"><label>Días de Vacaciones Totales</label><input type="number" id="emp-vac-total" value="12"></div>
+                <div class="form-group"><label>Días Vacaciones Totales</label><input type="number" id="emp-vac-total" value="12"></div>
                 <div class="form-group"><label>Días Disfrutados</label><input type="number" id="emp-vac-used" value="0"></div>
+                <div class="form-group"><label>Registrar Nuevo Préstamo ($)</label><input type="number" id="emp-loan" value="0" step="0.01"></div>
             </div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                 <button class="btn btn-secondary" onclick="closeModals()">Cancelar</button>
@@ -537,13 +529,17 @@
                         <option value="Salida">Salida</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Concepto / Relación</label><input type="text" id="cs-concept" placeholder="Ej: Pago de cliente o Proveedor" required></div>
+                <div class="form-group"><label>Concepto / Relación</label><input type="text" id="cs-concept" placeholder="Ej: Abono de cliente o Recibo luz" required></div>
                 <div class="form-group">
                     <label>Categoría</label>
                     <select id="cs-cat">
                         <option value="Cobro Cliente / Anticipo">Cobro Cliente / Anticipo</option>
                         <option value="Pago Proveedor">Pago Proveedor</option>
                         <option value="Nómina">Nómina</option>
+                        <option value="Luz">Luz (CFE)</option>
+                        <option value="Agua">Agua</option>
+                        <option value="Renta">Renta Local</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
                         <option value="Otro Gasto">Otro Gasto</option>
                         <option value="Otra Entrada">Otra Entrada</option>
                     </select>
@@ -562,237 +558,249 @@
     <script>
         let db = JSON.parse(localStorage.getItem('icarlab_erp_db')) || {
             quotes: [
-                { id: '1', num: 'ICAR-302', recNum: 'REC-01', date: '2026-10-01', client: 'Flensa QRO', car: 'Chevrolet Silverado 2024', amount: 16500, advance: 5000, advDate: '2026-10-01', status: 'En Proceso' }
+                { id: '1', num: 'ICAR-302', recNum: 'REC-01', date: '2026-10-01', client: 'Flensa QRO', car: 'Chevrolet Silverado 2024', amount: 16500, payments: [{date:'2026-10-01', amount:5000}], status: 'En Proceso' }
             ],
             suppliers: [
-                { id: '1', name: 'Chemical Guys QRO', invoice: 'FAC-9921', date: '2026-10-01', item: 'Shampoo pH Neutro', qty: 5, amount: 2400, paid: 2400, payDate: '2026-10-01' }
+                { id: '1', name: 'Chemical Guys QRO', invoice: 'FAC-9921', date: '2026-10-01', item: 'Shampoo pH Neutro', qty: 5, amount: 2400, payments: [{date:'2026-10-01', amount:2400}] }
             ],
             inventory: [
                 { id: '1', sku: 'QUIM-01', desc: 'Shampoo pH Neutro', prov: 'Chemical Guys QRO', stock: 5, min: 2 }
             ],
             employees: [
-                { id: '1', name: 'Carlos Mendoza', role: 'Técnico Detallador Sr.', phone: '4421234567', vacTotal: 12, vacUsed: 2 }
+                { id: '1', name: 'Carlos Mendoza', role: 'Técnico Detallador Sr.', phone: '4421234567', vacTotal: 12, vacUsed: 2, loans: [] }
             ],
             payroll: [
                 { id: '1', employeeId: '1', period: 'Quincena 1 Octubre', base: 6200, advance: 500, status: 'Pagado' }
             ],
             cash: [
-                { id: '1', date: '2026-10-01', type: 'Entrada', concept: 'Anticipo Flensa QRO', cat: 'Cobro Cliente / Anticipo', amount: 5000 }
+                { id: '1', date: '2026-10-01', type: 'Entrada', concept: 'Anticipo Flensa QRO', cat: 'Cobro Cliente / Anticipo', amount: 5000 },
+                { id: '2', date: '2026-10-01', type: 'Salida', concept: 'Compra químicos', cat: 'Pago Proveedor', amount: 2400 }
             ]
         };
 
-        function saveData() {
+        function saveDB() {
             localStorage.setItem('icarlab_erp_db', JSON.stringify(db));
             showToast();
-            refreshAll();
+            renderAll();
         }
 
         function showToast() {
-            const t = document.getElementById('toast');
+            let t = document.getElementById('toast');
             t.style.display = 'block';
-            setTimeout(() => { t.style.display = 'none'; }, 2000);
+            setTimeout(() => { t.style.display = 'none'; }, 2500);
         }
 
-        function switchView(viewName) {
+        function switchView(viewId) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + viewName).classList.add('active');
-            document.getElementById('nav-' + viewName).classList.add('active');
-            refreshAll();
+            document.getElementById('view-' + viewId).classList.add('active');
+            document.getElementById('nav-' + viewId).classList.add('active');
+            renderAll();
         }
 
         function closeModals() {
             document.querySelectorAll('.modal-bg').forEach(m => m.style.display = 'none');
         }
 
-        let dashChartInstance = null;
-
-        function refreshAll() {
-            renderDashboard();
+        // --- RENDER ALL ---
+        function renderAll() {
             renderQuotes();
             renderSuppliers();
             renderInventory();
-            renderPayroll();
             renderEmployees();
+            renderPayroll();
             renderCash();
+            renderDashboard();
             renderReports();
         }
 
-        // --- DASHBOARD ---
-        function renderDashboard() {
-            let totalIncome = db.quotes.reduce((acc, q) => acc + Number(q.advance || 0), 0);
-            let totalSupExpenses = db.suppliers.reduce((acc, s) => acc + Number(s.paid || 0), 0);
-            let totalPayExpenses = db.payroll.reduce((acc, p) => acc + (p.status === 'Pagado' ? Number(p.base - p.advance) : 0), 0);
-            let totalExpenses = totalSupExpenses + totalPayExpenses;
-            let profit = totalIncome - totalExpenses;
-
-            document.getElementById('d-income').innerText = `$${totalIncome.toFixed(2)}`;
-            document.getElementById('d-expenses').innerText = `$${totalExpenses.toFixed(2)}`;
-            
-            const profitEl = document.getElementById('d-profit');
-            profitEl.innerText = `$${profit.toFixed(2)}`;
-            profitEl.style.color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
-
-            document.getElementById('d-units').innerText = db.quotes.filter(q => q.status === 'En Proceso').length;
-
-            // Stock alerts
-            let alertsHtml = '';
-            let lowStockItems = db.inventory.filter(i => Number(i.stock) <= Number(i.min));
-            if (lowStockItems.length === 0) {
-                alertsHtml = '<div style="color:var(--text-muted);">Sin alertas críticas. Todo en orden.</div>';
-            } else {
-                lowStockItems.forEach(i => {
-                    alertsHtml += `<div style="padding:6px 0; border-bottom:1px solid var(--border-color); color:var(--warning);">⚠️ <b>${i.desc}</b> (Stock: ${i.stock}, Mín: ${i.min})</div>`;
-                });
-            }
-            document.getElementById('stock-alerts-list').innerHTML = alertsHtml;
-
-            // Chart
-            const ctx = document.getElementById('dashChart').getContext('2d');
-            if (dashChartInstance) dashChartInstance.destroy();
-            dashChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Ingresos', 'Egresos Proveedores', 'Nómina Pagada'],
-                    datasets: [{
-                        label: 'Monto ($)',
-                        data: [totalIncome, totalSupExpenses, totalPayExpenses],
-                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6'],
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }, x: { grid: { display: false }, ticks: { color: '#94a3b8' } } }
-                }
-            });
-        }
-
         // --- QUOTATIONS ---
-        function openQuoteModal() {
+        function openQuoteModal(id = null) {
             document.getElementById('q-id').value = '';
-            document.getElementById('q-num').value = 'ICAR-' + Math.floor(100 + Math.random() * 900);
-            document.getElementById('q-rec-num').value = 'REC-' + Math.floor(10 + Math.random() * 90);
+            document.getElementById('q-num').value = 'ICAR-' + Math.floor(100 + Math.random()*900);
+            document.getElementById('q-rec-num').value = 'REC-' + Math.floor(10 + Math.random()*90);
             document.getElementById('q-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('q-client').value = '';
             document.getElementById('q-car').value = '';
             document.getElementById('q-amount').value = '';
             document.getElementById('q-advance').value = '0';
             document.getElementById('q-adv-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('q-status').value = 'En Proceso';
+
+            if(id) {
+                let q = db.quotes.find(x => x.id === id);
+                if(q) {
+                    document.getElementById('q-id').value = q.id;
+                    document.getElementById('q-num').value = q.num;
+                    document.getElementById('q-rec-num').value = q.recNum;
+                    document.getElementById('q-date').value = q.date;
+                    document.getElementById('q-client').value = q.client;
+                    document.getElementById('q-car').value = q.car;
+                    document.getElementById('q-amount').value = q.amount;
+                    document.getElementById('q-status').value = q.status;
+                }
+            }
             document.getElementById('modal-quote').style.display = 'flex';
         }
 
         function saveQuote() {
-            const id = document.getElementById('q-id').value || Date.now().toString();
-            const num = document.getElementById('q-num').value;
-            const recNum = document.getElementById('q-rec-num').value;
-            const date = document.getElementById('q-date').value;
-            const client = document.getElementById('q-client').value;
-            const car = document.getElementById('q-car').value;
-            const amount = Number(document.getElementById('q-amount').value);
-            const advance = Number(document.getElementById('q-advance').value);
-            const advDate = document.getElementById('q-adv-date').value;
-            const status = document.getElementById('q-status').value;
+            let id = document.getElementById('q-id').value;
+            let num = document.getElementById('q-num').value;
+            let recNum = document.getElementById('q-rec-num').value;
+            let date = document.getElementById('q-date').value;
+            let client = document.getElementById('q-client').value;
+            let car = document.getElementById('q-car').value;
+            let amount = parseFloat(document.getElementById('q-amount').value) || 0;
+            let adv = parseFloat(document.getElementById('q-advance').value) || 0;
+            let advDate = document.getElementById('q-adv-date').value;
+            let status = document.getElementById('q-status').value;
 
             if(!num || !client || !amount) { alert('Complete los campos obligatorios'); return; }
 
-            const index = db.quotes.findIndex(q => q.id === id);
-            if(index >= 0) {
-                db.quotes[index] = { id, num, recNum, date, client, car, amount, advance, advDate, status };
-            } else {
-                db.quotes.push({ id, num, recNum, date, client, car, amount, advance, advDate, status });
-                if(advance > 0) {
-                    db.cash.push({ id: Date.now().toString(), date: advDate || date, type: 'Entrada', concept: `Anticipo ${client} (${num})`, cat: 'Cobro Cliente / Anticipo', amount: advance });
+            if(id) {
+                let q = db.quotes.find(x => x.id === id);
+                q.num = num; q.recNum = recNum; q.date = date; q.client = client; q.car = car; q.amount = amount; q.status = status;
+                if(adv > 0) {
+                    q.payments.push({date: advDate, amount: adv});
+                    db.cash.push({id: Date.now().toString(), date: advDate, type: 'Entrada', concept: `Abono Cotización ${num} - ${client}`, cat: 'Cobro Cliente / Anticipo', amount: adv});
                 }
+            } else {
+                let payments = [];
+                if(adv > 0) {
+                    payments.push({date: advDate, amount: adv});
+                    db.cash.push({id: Date.now().toString(), date: advDate, type: 'Entrada', concept: `Anticipo Cotización ${num} - ${client}`, cat: 'Cobro Cliente / Anticipo', amount: adv});
+                }
+                db.quotes.push({ id: Date.now().toString(), num, recNum, date, client, car, amount, payments, status });
             }
             closeModals();
-            saveData();
+            saveDB();
+        }
+
+        function deleteQuote(id) {
+            if(confirm('¿Eliminar cotización?')) {
+                db.quotes = db.quotes.filter(x => x.id !== id);
+                saveDB();
+            }
         }
 
         function renderQuotes() {
-            const tbody = document.querySelector('#quotes-table tbody');
+            let tbody = document.querySelector('#quotes-table tbody');
             tbody.innerHTML = '';
             db.quotes.forEach(q => {
-                let saldo = q.amount - q.advance;
-                let badgeClass = q.status === 'Finalizado' ? 'badge-success' : (q.status === 'En Proceso' ? 'badge-warning' : 'badge-success');
+                let paid = (q.payments || []).reduce((sum, p) => sum + p.amount, 0);
+                let saldo = q.amount - paid;
+                let payList = (q.payments || []).map(p => `${p.date}: $${p.amount.toFixed(2)}`).join('<br>');
+                let badgeClass = q.status === 'Finalizado' ? 'badge-success' : (q.status === 'En Proceso' ? 'badge-warning' : 'badge-danger');
+                
                 tbody.innerHTML += `
                     <tr>
-                        <td><b>${q.num}</b><br><small style="color:var(--text-muted)">${q.recNum}</small></td>
+                        <td><b>${q.num}</b><br><small>${q.recNum}</small></td>
                         <td>${q.date}</td>
                         <td>${q.client}</td>
                         <td>${q.car}</td>
-                        <td>$${Number(q.amount).toFixed(2)}</td>
-                        <td>$${Number(q.advance).toFixed(2)}</td>
-                        <td style="color: ${saldo > 0 ? 'var(--warning)' : 'var(--success)'}">$${saldo.toFixed(2)}</td>
+                        <td>$${q.amount.toFixed(2)}</td>
+                        <td><small>${payList || 'Sin pagos'}</small></td>
+                        <td><b>$${saldo.toFixed(2)}</b></td>
                         <td><span class="badge ${badgeClass}">${q.status}</span></td>
                         <td class="no-print">
-                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteQuote('${q.id}')">🗑️</button>
+                            <button class="btn-warning" onclick="openQuoteModal('${q.id}')">Editar</button>
+                            <button class="btn-danger" onclick="deleteQuote('${q.id}')">Eliminar</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function deleteQuote(id) {
-            if(confirm('¿Eliminar cotización?')) {
-                db.quotes = db.quotes.filter(q => q.id !== id);
-                saveData();
-            }
-        }
-
-        // --- SUPPLIERS & INVENTORY SYNC ---
-        function openSupplierModal() {
+        // --- SUPPLIERS & INVENTORY AUTOMATION ---
+        function openSupplierModal(id = null) {
             document.getElementById('s-id').value = '';
             document.getElementById('s-name').value = '';
-            document.getElementById('s-invoice').value = 'FAC-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('s-invoice').value = 'FAC-' + Math.floor(1000 + Math.random()*9000);
             document.getElementById('s-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('s-item').value = '';
             document.getElementById('s-qty').value = '1';
             document.getElementById('s-amount').value = '';
-            document.getElementById('s-paid').value = '';
+            document.getElementById('s-paid').value = '0';
             document.getElementById('s-pay-date').value = new Date().toISOString().split('T')[0];
+
+            if(id) {
+                let s = db.suppliers.find(x => x.id === id);
+                if(s) {
+                    document.getElementById('s-id').value = s.id;
+                    document.getElementById('s-name').value = s.name;
+                    document.getElementById('s-invoice').value = s.invoice;
+                    document.getElementById('s-date').value = s.date;
+                    document.getElementById('s-item').value = s.item;
+                    document.getElementById('s-qty').value = s.qty;
+                    document.getElementById('s-amount').value = s.amount;
+                }
+            }
             document.getElementById('modal-supplier').style.display = 'flex';
         }
 
         function saveSupplier() {
-            const id = document.getElementById('s-id').value || Date.now().toString();
-            const name = document.getElementById('s-name').value;
-            const invoice = document.getElementById('s-invoice').value;
-            const date = document.getElementById('s-date').value;
-            const item = document.getElementById('s-item').value;
-            const qty = Number(document.getElementById('s-qty').value);
-            const amount = Number(document.getElementById('s-amount').value);
-            const paid = Number(document.getElementById('s-paid').value);
-            const payDate = document.getElementById('s-pay-date').value;
+            let id = document.getElementById('s-id').value;
+            let name = document.getElementById('s-name').value;
+            let invoice = document.getElementById('s-invoice').value;
+            let date = document.getElementById('s-date').value;
+            let item = document.getElementById('s-item').value;
+            let qty = parseInt(document.getElementById('s-qty').value) || 1;
+            let amount = parseFloat(document.getElementById('s-amount').value) || 0;
+            let paid = parseFloat(document.getElementById('s-paid').value) || 0;
+            let payDate = document.getElementById('s-pay-date').value;
 
-            if(!name || !invoice || !item || !amount) { alert('Complete los campos requeridos'); return; }
+            if(!name || !item || !amount) { alert('Complete los campos'); return; }
 
-            db.suppliers.push({ id, name, invoice, date, item, qty, amount, paid, payDate });
-
-            // Auto update inventory
-            let existingInv = db.inventory.find(i => i.desc.toLowerCase() === item.toLowerCase());
-            if(existingInv) {
-                existingInv.stock += qty;
-                existingInv.prov = name;
+            // Actualizar inventario automáticamente
+            let invItem = db.inventory.find(i => i.desc.toLowerCase() === item.toLowerCase());
+            if(invItem) {
+                invItem.stock += qty;
+                invItem.prov = name;
             } else {
-                db.inventory.push({ id: Date.now().toString(), sku: 'SKU-' + Math.floor(100+Math.random()*900), desc: item, prov: name, stock: qty, min: 2 });
+                db.inventory.push({
+                    id: Date.now().toString(),
+                    sku: 'SKU-' + Math.floor(100+Math.random()*900),
+                    desc: item,
+                    prov: name,
+                    stock: qty,
+                    min: 2
+                });
             }
 
-            if(paid > 0) {
-                db.cash.push({ id: Date.now().toString(), date: payDate || date, type: 'Salida', concept: `Pago factura ${invoice} - ${name}`, cat: 'Pago Proveedor', amount: paid });
+            if(id) {
+                let s = db.suppliers.find(x => x.id === id);
+                s.name = name; s.invoice = invoice; s.date = date; s.item = item; s.qty = qty; s.amount = amount;
+                if(paid > 0) {
+                    s.payments.push({date: payDate, amount: paid});
+                    db.cash.push({id: Date.now().toString(), date: payDate, type: 'Salida', concept: `Pago factura ${invoice} - ${name}`, cat: 'Pago Proveedor', amount: paid});
+                }
+            } else {
+                let payments = [];
+                if(paid > 0) {
+                    payments.push({date: payDate, amount: paid});
+                    db.cash.push({id: Date.now().toString(), date: payDate, type: 'Salida', concept: `Pago factura ${invoice} - ${name}`, cat: 'Pago Proveedor', amount: paid});
+                }
+                db.suppliers.push({ id: Date.now().toString(), name, invoice, date, item, qty, amount, payments });
             }
 
             closeModals();
-            saveData();
+            saveDB();
+        }
+
+        function deleteSupplier(id) {
+            if(confirm('¿Eliminar registro de proveedor?')) {
+                db.suppliers = db.suppliers.filter(x => x.id !== id);
+                saveDB();
+            }
         }
 
         function renderSuppliers() {
-            const tbody = document.querySelector('#suppliers-table tbody');
+            let tbody = document.querySelector('#suppliers-table tbody');
             tbody.innerHTML = '';
             db.suppliers.forEach(s => {
-                let saldo = s.amount - s.paid;
+                let paid = (s.payments || []).reduce((sum, p) => sum + p.amount, 0);
+                let saldo = s.amount - paid;
+                let payList = (s.payments || []).map(p => `${p.date}: $${p.amount.toFixed(2)}`).join('<br>');
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${s.name}</b></td>
@@ -801,280 +809,394 @@
                         <td>${s.item}</td>
                         <td>${s.qty}</td>
                         <td>$${s.amount.toFixed(2)}</td>
-                        <td>$${s.paid.toFixed(2)}</td>
-                        <td style="color:${saldo > 0 ? 'var(--warning)' : 'var(--success)'}">$${saldo.toFixed(2)}</td>
+                        <td><small>${payList || 'Sin abonos'}</small></td>
+                        <td><b>$${saldo.toFixed(2)}</b></td>
                         <td class="no-print">
-                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteSupplier('${s.id}')">🗑️</button>
+                            <button class="btn-warning" onclick="openSupplierModal('${s.id}')">Editar</button>
+                            <button class="btn-danger" onclick="deleteSupplier('${s.id}')">Eliminar</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function deleteSupplier(id) {
-            if(confirm('¿Eliminar registro?')) {
-                db.suppliers = db.suppliers.filter(s => s.id !== id);
-                saveData();
-            }
-        }
-
         // --- INVENTORY ---
-        function openInventoryModal() {
+        function openInventoryModal(id = null) {
             document.getElementById('i-id').value = '';
             document.getElementById('inv-sku').value = 'SKU-' + Math.floor(100+Math.random()*900);
             document.getElementById('inv-desc').value = '';
             document.getElementById('inv-prov').value = '';
-            document.getElementById('inv-stock').value = '10';
+            document.getElementById('inv-stock').value = '0';
             document.getElementById('inv-min').value = '2';
+
+            if(id) {
+                let i = db.inventory.find(x => x.id === id);
+                if(i) {
+                    document.getElementById('i-id').value = i.id;
+                    document.getElementById('inv-sku').value = i.sku;
+                    document.getElementById('inv-desc').value = i.desc;
+                    document.getElementById('inv-prov').value = i.prov;
+                    document.getElementById('inv-stock').value = i.stock;
+                    document.getElementById('inv-min').value = i.min;
+                }
+            }
             document.getElementById('modal-inventory').style.display = 'flex';
         }
 
         function saveInventory() {
-            const id = document.getElementById('i-id').value || Date.now().toString();
-            const sku = document.getElementById('inv-sku').value;
-            const desc = document.getElementById('inv-desc').value;
-            const prov = document.getElementById('inv-prov').value;
-            const stock = Number(document.getElementById('inv-stock').value);
-            const min = Number(document.getElementById('inv-min').value);
+            let id = document.getElementById('i-id').value;
+            let sku = document.getElementById('inv-sku').value;
+            let desc = document.getElementById('inv-desc').value;
+            let prov = document.getElementById('inv-prov').value;
+            let stock = parseInt(document.getElementById('inv-stock').value) || 0;
+            let min = parseInt(document.getElementById('inv-min').value) || 2;
 
-            const index = db.inventory.findIndex(i => i.id === id);
-            if(index >= 0) {
-                db.inventory[index] = { id, sku, desc, prov, stock, min };
+            if(!sku || !desc) { alert('Complete SKU y Descripción'); return; }
+
+            if(id) {
+                let item = db.inventory.find(x => x.id === id);
+                item.sku = sku; item.desc = desc; item.prov = prov; item.stock = stock; item.min = min;
             } else {
-                db.inventory.push({ id, sku, desc, prov, stock, min });
+                db.inventory.push({ id: Date.now().toString(), sku, desc, prov, stock, min });
             }
             closeModals();
-            saveData();
+            saveDB();
+        }
+
+        function deleteInventory(id) {
+            if(confirm('¿Eliminar producto del inventario?')) {
+                db.inventory = db.inventory.filter(x => x.id !== id);
+                saveDB();
+            }
         }
 
         function renderInventory() {
-            const tbody = document.querySelector('#inventory-table tbody');
+            let tbody = document.querySelector('#inventory-table tbody');
             tbody.innerHTML = '';
+            let alertsHtml = '';
             db.inventory.forEach(i => {
-                let low = i.stock <= i.min;
+                let isLow = i.stock <= i.min;
+                let badge = isLow ? '<span class="badge badge-danger">Stock Bajo</span>' : '<span class="badge badge-success">Óptimo</span>';
+                if(isLow) {
+                    alertsHtml += `• <b>${i.desc}</b> (Stock: ${i.stock}, Mín: ${i.min})<br>`;
+                }
                 tbody.innerHTML += `
                     <tr>
                         <td><b>${i.sku}</b></td>
                         <td>${i.desc}</td>
-                        <td>${i.prov || 'General'}</td>
+                        <td>${i.prov || 'N/D'}</td>
                         <td>${i.stock}</td>
                         <td>${i.min}</td>
-                        <td><span class="badge ${low ? 'badge-danger' : 'badge-success'}">${low ? 'Stock Bajo' : 'Óptimo'}</span></td>
+                        <td>${badge}</td>
                         <td class="no-print">
-                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteInventory('${i.id}')">🗑️</button>
+                            <button class="btn-warning" onclick="openInventoryModal('${i.id}')">Editar</button>
+                            <button class="btn-danger" onclick="deleteInventory('${i.id}')">Eliminar</button>
                         </td>
                     </tr>
                 `;
             });
+            document.getElementById('stock-alerts-list').innerHTML = alertsHtml || 'Sin alertas críticas de stock.';
         }
 
-        function deleteInventory(id) {
-            if(confirm('¿Eliminar producto?')) {
-                db.inventory = db.inventory.filter(i => i.id !== id);
-                saveData();
-            }
-        }
-
-        // --- PAYROLL ---
-        function openPayrollModal() {
-            document.getElementById('p-id').value = '';
-            document.getElementById('p-period').value = 'Quincena Octubre 2026';
-            document.getElementById('p-base').value = '';
-            document.getElementById('p-advance').value = '0';
-            
-            const select = document.getElementById('p-employee');
-            select.innerHTML = '';
-            db.employees.forEach(e => {
-                select.innerHTML += `<option value="${e.id}">${e.name} (${e.role})</option>`;
-            });
-
-            document.getElementById('modal-payroll').style.display = 'flex';
-        }
-
-        function savePayroll() {
-            const id = document.getElementById('p-id').value || Date.now().toString();
-            const employeeId = document.getElementById('p-employee').value;
-            const period = document.getElementById('p-period').value;
-            const base = Number(document.getElementById('p-base').value);
-            const advance = Number(document.getElementById('p-advance').value);
-            const status = document.getElementById('p-status').value;
-
-            if(!period || !base) { alert('Complete los datos'); return; }
-
-            db.payroll.push({ id, employeeId, period, base, advance, status });
-            if(status === 'Pagado') {
-                let net = base - advance;
-                let emp = db.employees.find(e => e.id === employeeId);
-                db.cash.push({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], type: 'Salida', concept: `Nómina ${emp ? emp.name : ''} - ${period}`, cat: 'Nómina', amount: net });
-            }
-
-            closeModals();
-            saveData();
-        }
-
-        function renderPayroll() {
-            const tbody = document.querySelector('#payroll-table tbody');
-            tbody.innerHTML = '';
-            db.payroll.forEach(p => {
-                let emp = db.employees.find(e => e.id === p.employeeId);
-                let net = p.base - p.advance;
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${emp ? emp.name : 'Desconocido'}</b><br><small style="color:var(--text-muted)">${emp ? emp.role : ''}</small></td>
-                        <td>${p.period}</td>
-                        <td>$${p.base.toFixed(2)}</td>
-                        <td>$${p.advance.toFixed(2)}</td>
-                        <td><b>$${net.toFixed(2)}</b></td>
-                        <td><span class="badge ${p.status === 'Pagado' ? 'badge-success' : 'badge-warning'}">${p.status}</span></td>
-                        <td class="no-print">
-                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deletePayroll('${p.id}')">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        }
-
-        function deletePayroll(id) {
-            if(confirm('¿Eliminar registro?')) {
-                db.payroll = db.payroll.filter(p => p.id !== id);
-                saveData();
-            }
-        }
-
-        // --- EMPLOYEES ---
-        function openEmployeeModal() {
+        // --- EMPLOYEES & LOANS ---
+        function openEmployeeModal(id = null) {
             document.getElementById('e-id').value = '';
             document.getElementById('emp-name').value = '';
             document.getElementById('emp-role').value = '';
             document.getElementById('emp-phone').value = '';
             document.getElementById('emp-vac-total').value = '12';
             document.getElementById('emp-vac-used').value = '0';
+            document.getElementById('emp-loan').value = '0';
+
+            if(id) {
+                let e = db.employees.find(x => x.id === id);
+                if(e) {
+                    document.getElementById('e-id').value = e.id;
+                    document.getElementById('emp-name').value = e.name;
+                    document.getElementById('emp-role').value = e.role;
+                    document.getElementById('emp-phone').value = e.phone;
+                    document.getElementById('emp-vac-total').value = e.vacTotal;
+                    document.getElementById('emp-vac-used').value = e.vacUsed;
+                }
+            }
             document.getElementById('modal-employee').style.display = 'flex';
         }
 
         function saveEmployee() {
-            const id = document.getElementById('e-id').value || Date.now().toString();
-            const name = document.getElementById('emp-name').value;
-            const role = document.getElementById('emp-role').value;
-            const phone = document.getElementById('emp-phone').value;
-            const vacTotal = Number(document.getElementById('emp-vac-total').value);
-            const vacUsed = Number(document.getElementById('emp-vac-used').value);
+            let id = document.getElementById('e-id').value;
+            let name = document.getElementById('emp-name').value;
+            let role = document.getElementById('emp-role').value;
+            let phone = document.getElementById('emp-phone').value;
+            let vacTotal = parseInt(document.getElementById('emp-vac-total').value) || 12;
+            let vacUsed = parseInt(document.getElementById('emp-vac-used').value) || 0;
+            let loanAmount = parseFloat(document.getElementById('emp-loan').value) || 0;
 
-            if(!name || !role) { alert('Ingrese nombre y puesto'); return; }
+            if(!name || !role) { alert('Complete los campos obligatorios'); return; }
 
-            db.employees.push({ id, name, role, phone, vacTotal, vacUsed });
+            if(id) {
+                let emp = db.employees.find(x => x.id === id);
+                emp.name = name; emp.role = role; emp.phone = phone; emp.vacTotal = vacTotal; emp.vacUsed = vacUsed;
+                if(loanAmount > 0) {
+                    if(!emp.loans) emp.loans = [];
+                    emp.loans.push({id: Date.now().toString(), date: new Date().toISOString().split('T')[0], amount: loanAmount, status: 'Activo'});
+                    db.cash.push({id: Date.now().toString(), date: new Date().toISOString().split('T')[0], type: 'Salida', concept: `Préstamo a empleado ${name}`, cat: 'Nómina', amount: loanAmount});
+                }
+            } else {
+                let loans = [];
+                if(loanAmount > 0) {
+                    loans.push({id: Date.now().toString(), date: new Date().toISOString().split('T')[0], amount: loanAmount, status: 'Activo'});
+                    db.cash.push({id: Date.now().toString(), date: new Date().toISOString().split('T')[0], type: 'Salida', concept: `Préstamo a empleado ${name}`, cat: 'Nómina', amount: loanAmount});
+                }
+                db.employees.push({ id: Date.now().toString(), name, role, phone, vacTotal, vacUsed, loans });
+            }
             closeModals();
-            saveData();
-        }
-
-        function renderEmployees() {
-            const tbody = document.querySelector('#employees-table tbody');
-            tbody.innerHTML = '';
-            db.employees.forEach(e => {
-                let available = e.vacTotal - e.vacUsed;
-                tbody.innerHTML += `
-                    <tr>
-                        <td><b>${e.name}</b></td>
-                        <td>${e.role}</td>
-                        <td>${e.phone || 'N/A'}</td>
-                        <td>${e.vacTotal} días</td>
-                        <td>${e.vacUsed} días</td>
-                        <td style="color:var(--success); font-weight:bold;">${available} días</td>
-                        <td class="no-print">
-                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteEmployee('${e.id}')">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            });
+            saveDB();
         }
 
         function deleteEmployee(id) {
             if(confirm('¿Eliminar empleado?')) {
-                db.employees = db.employees.filter(e => e.id !== id);
-                saveData();
+                db.employees = db.employees.filter(x => x.id !== id);
+                saveDB();
             }
         }
 
-        // --- CASHFLOW ---
-        function openCashModal() {
-            document.getElementById('c-id').value = '';
-            document.getElementById('cs-date').value = new Date().toISOString().split('T')[0];
-            document.getElementById('cs-concept').value = '';
-            document.getElementById('cs-amount').value = '';
-            document.getElementById('modal-cash').style.display = 'flex';
-        }
-
-        function saveCash() {
-            const id = document.getElementById('c-id').value || Date.now().toString();
-            const date = document.getElementById('cs-date').value;
-            const type = document.getElementById('cs-type').value;
-            const concept = document.getElementById('cs-concept').value;
-            const cat = document.getElementById('cs-cat').value;
-            const amount = Number(document.getElementById('cs-amount').value);
-
-            if(!concept || !amount) { alert('Complete los campos'); return; }
-
-            db.cash.push({ id, date, type, concept, cat, amount });
-            closeModals();
-            saveData();
-        }
-
-        function renderCash() {
-            const tbody = document.querySelector('#cash-table tbody');
+        function renderEmployees() {
+            let tbody = document.querySelector('#employees-table tbody');
             tbody.innerHTML = '';
-            db.cash.forEach(c => {
+            let selectEmp = document.getElementById('p-employee');
+            selectEmp.innerHTML = '';
+
+            db.employees.forEach(e => {
+                selectEmp.innerHTML += `<option value="${e.id}">${e.name} (${e.role})</option>`;
+                let avail = e.vacTotal - e.vacUsed;
+                let loanList = (e.loans || []).map(l => `${l.date}: $${l.amount.toFixed(2)} (${l.status})`).join('<br>');
+
                 tbody.innerHTML += `
                     <tr>
-                        <td>${c.date}</td>
-                        <td><span class="badge ${c.type === 'Entrada' ? 'badge-success' : 'badge-danger'}">${c.type}</span></td>
-                        <td>${c.concept}</td>
-                        <td>${c.cat}</td>
-                        <td style="color: ${c.type === 'Entrada' ? 'var(--success)' : 'var(--danger)'}">$${c.amount.toFixed(2)}</td>
+                        <td><b>${e.name}</b><br><small>${e.role}</small></td>
+                        <td>${e.role}</td>
+                        <td>${e.phone || 'N/D'}</td>
+                        <td><small>${loanList || 'Sin préstamos'}</small></td>
+                        <td><b>${avail}</b> disp. (${e.vacUsed} usados / ${e.vacTotal} tot)</td>
                         <td class="no-print">
-                            <button class="btn btn-secondary" style="padding:3px 6px; font-size:10px;" onclick="deleteCash('${c.id}')">🗑️</button>
+                            <button class="btn-warning" onclick="openEmployeeModal('${e.id}')">Editar</button>
+                            <button class="btn-danger" onclick="deleteEmployee('${e.id}')">Eliminar</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function deleteCash(id) {
-            if(confirm('¿Eliminar movimiento?')) {
-                db.cash = db.cash.filter(c => c.id !== id);
-                saveData();
+        // --- PAYROLL ---
+        function openPayrollModal(id = null) {
+            document.getElementById('p-id').value = '';
+            document.getElementById('p-period').value = 'Quincena Octubre';
+            document.getElementById('p-base').value = '';
+            document.getElementById('p-advance').value = '0';
+            document.getElementById('p-status').value = 'Pagado';
+
+            if(id) {
+                let p = db.payroll.find(x => x.id === id);
+                if(p) {
+                    document.getElementById('p-id').value = p.id;
+                    document.getElementById('p-employee').value = p.employeeId;
+                    document.getElementById('p-period').value = p.period;
+                    document.getElementById('p-base').value = p.base;
+                    document.getElementById('p-advance').value = p.advance;
+                    document.getElementById('p-status').value = p.status;
+                }
+            }
+            document.getElementById('modal-payroll').style.display = 'flex';
+        }
+
+        function savePayroll() {
+            let id = document.getElementById('p-id').value;
+            let employeeId = document.getElementById('p-employee').value;
+            let period = document.getElementById('p-period').value;
+            let base = parseFloat(document.getElementById('p-base').value) || 0;
+            let advance = parseFloat(document.getElementById('p-advance').value) || 0;
+            let status = document.getElementById('p-status').value;
+
+            if(!period || !base) { alert('Complete los campos'); return; }
+            let net = base - advance;
+
+            if(id) {
+                let p = db.payroll.find(x => x.id === id);
+                p.employeeId = employeeId; p.period = period; p.base = base; p.advance = advance; p.status = status;
+            } else {
+                db.payroll.push({ id: Date.now().toString(), employeeId, period, base, advance, status });
+                db.cash.push({ id: Date.now().toString(), date: new Date().toISOString().split('T')[0], type: 'Salida', concept: `Nómina período ${period}`, cat: 'Nómina', amount: net });
+            }
+            closeModals();
+            saveDB();
+        }
+
+        function deletePayroll(id) {
+            if(confirm('¿Eliminar registro de nómina?')) {
+                db.payroll = db.payroll.filter(x => x.id !== id);
+                saveDB();
             }
         }
 
-        // --- REPORTS ---
-        function renderReports() {
-            const type = document.getElementById('report-type').value;
-            const container = document.getElementById('report-content');
-            
-            let totalIncome = db.cash.filter(c => c.type === 'Entrada').reduce((a,b)=>a+b.amount,0);
-            let totalOut = db.cash.filter(c => c.type === 'Salida').reduce((a,b)=>a+b.amount,0);
-            let net = totalIncome - totalOut;
+        function renderPayroll() {
+            let tbody = document.querySelector('#payroll-table tbody');
+            tbody.innerHTML = '';
+            db.payroll.forEach(p => {
+                let emp = db.employees.find(x => x.id === p.employeeId);
+                let empName = emp ? emp.name : 'Empleado Desconocido';
+                let net = p.base - p.advance;
+                let badge = p.status === 'Pagado' ? 'badge-success' : 'badge-warning';
 
-            container.innerHTML = `
-                <h3 style="color:var(--accent-orange); margin-bottom:10px;">Reporte Financiero: Bloque ${type.toUpperCase()}</h3>
-                <p><b>Sucursal:</b> Querétaro QRO | <b>Fecha de Emisión:</b> ${new Date().toLocaleDateString()}</p>
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${empName}</b></td>
+                        <td>${p.period}</td>
+                        <td>$${p.base.toFixed(2)}</td>
+                        <td>$${p.advance.toFixed(2)}</td>
+                        <td><b>$${net.toFixed(2)}</b></td>
+                        <td><span class="badge ${badge}">${p.status}</span></td>
+                        <td class="no-print">
+                            <button class="btn-warning" onclick="openPayrollModal('${p.id}')">Editar</button>
+                            <button class="btn-danger" onclick="deletePayroll('${p.id}')">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- CASHFLOW ---
+        function openCashModal(id = null) {
+            document.getElementById('c-id').value = '';
+            document.getElementById('cs-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('cs-type').value = 'Entrada';
+            document.getElementById('cs-concept').value = '';
+            document.getElementById('cs-cat').value = 'Cobro Cliente / Anticipo';
+            document.getElementById('cs-amount').value = '';
+
+            if(id) {
+                let c = db.cash.find(x => x.id === id);
+                if(c) {
+                    document.getElementById('c-id').value = c.id;
+                    document.getElementById('cs-date').value = c.date;
+                    document.getElementById('cs-type').value = c.type;
+                    document.getElementById('cs-concept').value = c.concept;
+                    document.getElementById('cs-cat').value = c.cat;
+                    document.getElementById('cs-amount').value = c.amount;
+                }
+            }
+            document.getElementById('modal-cash').style.display = 'flex';
+        }
+
+        function saveCash() {
+            let id = document.getElementById('c-id').value;
+            let date = document.getElementById('cs-date').value;
+            let type = document.getElementById('cs-type').value;
+            let concept = document.getElementById('cs-concept').value;
+            let cat = document.getElementById('cs-cat').value;
+            let amount = parseFloat(document.getElementById('cs-amount').value) || 0;
+
+            if(!concept || !amount) { alert('Complete los campos'); return; }
+
+            if(id) {
+                let c = db.cash.find(x => x.id === id);
+                c.date = date; c.type = type; c.concept = concept; c.cat = cat; c.amount = amount;
+            } else {
+                db.cash.push({ id: Date.now().toString(), date, type, concept, cat, amount });
+            }
+            closeModals();
+            saveDB();
+        }
+
+        function deleteCash(id) {
+            if(confirm('¿Eliminar movimiento de caja?')) {
+                db.cash = db.cash.filter(x => x.id !== id);
+                saveDB();
+            }
+        }
+
+        function renderCash() {
+            let tbody = document.querySelector('#cash-table tbody');
+            tbody.innerHTML = '';
+            db.cash.forEach(c => {
+                let badge = c.type === 'Entrada' ? 'badge-success' : 'badge-danger';
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${c.date}</td>
+                        <td><span class="badge ${badge}">${c.type}</span></td>
+                        <td>${c.concept}</td>
+                        <td>${c.cat}</td>
+                        <td><b>$${c.amount.toFixed(2)}</b></td>
+                        <td class="no-print">
+                            <button class="btn-warning" onclick="openCashModal('${c.id}')">Editar</button>
+                            <button class="btn-danger" onclick="deleteCash('${c.id}')">Eliminar</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // --- DASHBOARD & REPORTS (FILTERED BY BLOCKS) ---
+        let myChart = null;
+
+        function renderDashboard() {
+            let period = document.getElementById('dash-period').value;
+            
+            let totalIncome = db.cash.filter(x => x.type === 'Entrada').reduce((sum, x) => sum + x.amount, 0);
+            let totalExpenses = db.cash.filter(x => x.type === 'Salida').reduce((sum, x) => sum + x.amount, 0);
+            let netProfit = totalIncome - totalExpenses;
+            let activeUnits = db.quotes.filter(x => x.status !== 'Finalizado').length;
+
+            document.getElementById('d-income').innerText = `$${totalIncome.toFixed(2)}`;
+            document.getElementById('d-expenses').innerText = `$${totalExpenses.toFixed(2)}`;
+            let profEl = document.getElementById('d-profit');
+            profEl.innerText = `$${netProfit.toFixed(2)}`;
+            profEl.style.color = netProfit >= 0 ? 'var(--success)' : 'var(--danger)';
+            document.getElementById('d-units').innerText = activeUnits;
+
+            // Chart
+            let ctx = document.getElementById('dashChart').getContext('2d');
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Ingresos', 'Egresos', 'Utilidad Neta'],
+                    datasets: [{
+                        label: `Bloque (${period.toUpperCase()})`,
+                        data: [totalIncome, totalExpenses, netProfit],
+                        backgroundColor: ['#10b981', '#ef4444', '#3b82f6']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function renderReports() {
+            let rType = document.getElementById('report-type').value;
+            let totalIncome = db.cash.filter(x => x.type === 'Entrada').reduce((sum, x) => sum + x.amount, 0);
+            let totalExpenses = db.cash.filter(x => x.type === 'Salida').reduce((sum, x) => sum + x.amount, 0);
+            let netProfit = totalIncome - totalExpenses;
+
+            let html = `
+                <h3>Reporte Financiero Oficial - Bloque ${rType.toUpperCase()}</h3>
+                <p><b>Sucursal:</b> Querétaro QRO | <b>Fecha de emisión:</b> ${new Date().toLocaleDateString()}</p>
                 <hr style="border-color:var(--border-color); margin: 15px 0;">
-                <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:20px;">
-                    <div class="card" style="margin:0;"><div>Entradas Totales</div><div style="font-size:18px; color:var(--success);">$${totalIncome.toFixed(2)}</div></div>
-                    <div class="card" style="margin:0;"><div>Salidas Totales</div><div style="font-size:18px; color:var(--danger);">$${totalOut.toFixed(2)}</div></div>
-                    <div class="card" style="margin:0;"><div>Balance Neto</div><div style="font-size:18px; color:${net>=0?'var(--success)':'var(--danger)'};">$${net.toFixed(2)}</div></div>
-                </div>
+                <p><b>1. Total de Ingresos (Cobros y Anticipos):</b> $${totalIncome.toFixed(2)}</p>
+                <p><b>2. Total de Egresos (Proveedores, Nómina, Servicios):</b> $${totalExpenses.toFixed(2)}</p>
+                <p><b>3. Utilidad Neta del Bloque:</b> <span style="color:${netProfit>=0?'var(--success)':'var(--danger)'}; font-weight:bold;">$${netProfit.toFixed(2)}</span></p>
+                <br>
                 <h4>Resumen Operativo:</h4>
                 <ul>
-                    <li>Cotizaciones / Unidades activas registradas: ${db.quotes.length}</li>
-                    <li>Facturas de Proveedores procesadas: ${db.suppliers.length}</li>
-                    <li>Artículos en Inventario: ${db.inventory.length}</li>
+                    <li>Cotizaciones registradas: ${db.quotes.length}</li>
+                    <li>Facturas de Proveedores: ${db.suppliers.length}</li>
+                    <li>Artículos en inventario: ${db.inventory.length}</li>
                     <li>Empleados activos: ${db.employees.length}</li>
                 </ul>
             `;
+            document.getElementById('report-content').innerHTML = html;
         }
 
-        // Initial load
-        refreshAll();
+        // Initial Load
+        renderAll();
     </script>
 </body>
 </html>
